@@ -27,6 +27,10 @@ export default function Dashboard() {
   const [selectedMethod, setSelectedMethod] = useState("");
   const [paymentSuccess, setPaymentSuccess] = useState("");
 
+  const [amount, setAmount] = useState("");
+const [amountError, setAmountError] = useState("");
+
+
   const [newPass, setNewPass] = useState("");
   const [passSuccess, setPassSuccess] = useState("");
   const [passError, setPassError] = useState("");
@@ -41,39 +45,52 @@ export default function Dashboard() {
   });
 
   // ================= LOAD USER + WALLET + ORDERS =================
-  useEffect(() => {
-    const storedName = localStorage.getItem("userName");
-    const storedEmail = localStorage.getItem("email");
-    const storedPhone = localStorage.getItem("phone");
-    const storedWallet = localStorage.getItem("walletBalance");
-    const order = localStorage.getItem("order");
+// ================= LOAD USER + WALLET + ORDERS =================
+useEffect(() => {
+  const storedEmail = localStorage.getItem("email");
+  const storedPhone = localStorage.getItem("phone");
 
-    setUserDetails({
-      name: storedName || "Demo User",
-      email: storedEmail || "",
-      phone: storedPhone || "",
+  if (!storedEmail && !storedPhone) return;
+
+  const identifier = storedEmail || storedPhone;
+
+  // ---- FIRST: Fetch user data from DB ----
+  fetch("/api/auth/get-user", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ identifier }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.success) {
+        setUserDetails({
+          name: data.user.name,
+          email: data.user.email,
+          phone: data.user.phone,
+        });
+
+        setWalletBalance(data.user.wallet || 0);
+        setTotalOrders(data.user.order || 0);
+      }
     });
 
-    if (storedWallet) setWalletBalance(Number(storedWallet));
-    if (order) setTotalOrders(Number(order));
+  // ---- SECOND: Fetch user orders ----
+  fetch("/api/order/user", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email: storedEmail || null,
+      phone: storedPhone || null,
+    }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.success) {
+        setOrders(data.orders);
+      }
+    });
 
-    if (storedEmail || storedPhone) {
-      fetch("/api/order/user", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: storedEmail || null,
-          phone: storedPhone || null,
-        }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.success) {
-            setOrders(data.orders);
-          }
-        });
-    }
-  }, []);
+}, []);
 
   // ===================================================================
   return (
@@ -159,83 +176,129 @@ export default function Dashboard() {
           )}
 
           {/* =============== WALLET TAB =============== */}
-          {activeTab === "wallet" && (
-            <>
-              <h2 className="text-2xl font-semibold mb-6">Wallet Balance</h2>
+         {activeTab === "wallet" && (
+  <>
+    <h2 className="text-2xl font-semibold mb-6">Wallet Balance</h2>
 
-              {paymentSuccess && (
-                <p className="text-green-500 font-medium mb-4">{paymentSuccess}</p>
-              )}
+    {paymentSuccess && (
+      <p className="text-green-500 font-medium mb-4">{paymentSuccess}</p>
+    )}
 
-              <p className="text-lg font-bold mb-4">Current Balance: ₹{walletBalance}</p>
+    <p className="text-lg font-bold mb-4">Current Balance: ₹{walletBalance}</p>
 
+    <button
+      onClick={() => {
+        setShowAddBalance(true);
+        setSelectedMethod("");
+        setAmount("");
+        setAmountError("");
+      }}
+      className="bg-[var(--accent)] text-white font-semibold px-5 py-3 rounded-xl hover:opacity-90 transition"
+    >
+      Add Money
+    </button>
+
+    {/* POPUP */}
+    {showAddBalance && (
+      <div className="mt-6 p-6 border border-[var(--border)] bg-[var(--background)] rounded-2xl shadow-lg">
+
+        {/* ---- ENTER AMOUNT FIRST ---- */}
+        {!selectedMethod && (
+          <>
+            <h3 className="text-lg font-semibold mb-4">Enter Amount</h3>
+
+            <input
+              type="number"
+              placeholder="Minimum ₹100"
+              value={amount}
+              onChange={(e) => {
+                setAmount(e.target.value);
+                setAmountError("");
+              }}
+              className="w-full p-3 rounded-xl bg-[var(--background)] border border-[var(--border)] mb-2"
+            />
+
+            {amountError && (
+              <p className="text-red-500 text-sm mb-3">{amountError}</p>
+            )}
+
+            <button
+              onClick={() => {
+                if (!amount || Number(amount) < 100) {
+                  setAmountError("Minimum amount is ₹100");
+                  return;
+                }
+                setSelectedMethod("choose");
+              }}
+              className="w-full p-3 rounded-xl bg-[var(--accent)] text-white font-semibold hover:opacity-90 transition"
+            >
+              Continue
+            </button>
+          </>
+        )}
+
+        {/* ---- CHOOSE PAYMENT METHOD ---- */}
+        {selectedMethod === "choose" && (
+          <>
+            <h3 className="text-lg font-semibold mb-4">Choose Payment Method</h3>
+
+            <div className="space-y-3">
               <button
-                onClick={() => {
-                  setShowAddBalance(true);
-                  setSelectedMethod("");
-                }}
-                className="bg-[var(--accent)] text-white font-semibold px-5 py-3 rounded-xl hover:opacity-90 transition"
+                onClick={() => setSelectedMethod("upi")}
+                className="w-full p-3 rounded-xl border border-[var(--accent)] text-[var(--accent)] font-semibold hover:bg-[var(--card)]/40 transition"
               >
-                Add Money
+                Pay with UPI
               </button>
 
-              {/* POPUP */}
-              {showAddBalance && (
-                <div className="mt-6 p-6 border border-[var(--border)] bg-[var(--background)] rounded-2xl shadow-lg">
+              <button
+                onClick={() => setSelectedMethod("usdt")}
+                className="w-full p-3 rounded-xl border border-[var(--accent)] text-[var(--accent)] font-semibold hover:bg-[var(--card)]/40 transition"
+              >
+                Pay with USDT (TRC20)
+              </button>
+            </div>
+          </>
+        )}
 
-                  {!selectedMethod && (
-                    <>
-                      <h3 className="text-lg font-semibold mb-4">Choose Payment Method</h3>
+        {/* ---- UPI PAYMENT ---- */}
+        {selectedMethod === "upi" && (
+          <WalletPayUI
+            title="Scan UPI QR"
+            qr="/sample-qr.png"
+            onConfirm={() => {
+              const newBalance = walletBalance + Number(amount);
+              setWalletBalance(newBalance);
 
-                      <div className="space-y-3">
-                        <button
-                          onClick={() => setSelectedMethod("upi")}
-                          className="w-full p-3 rounded-xl border border-[var(--accent)] text-[var(--accent)] font-semibold transition hover:bg-[var(--card)]/40"
-                        >
-                          Pay with UPI
-                        </button>
+              // update local storage temporarily
+              localStorage.setItem("walletBalance", String(newBalance));
 
-                        <button
-                          onClick={() => setSelectedMethod("usdt")}
-                          className="w-full p-3 rounded-xl border border-[var(--accent)] text-[var(--accent)] font-semibold transition hover:bg-[var(--card)]/40"
-                        >
-                          Pay with USDT (TRC20)
-                        </button>
-                      </div>
-                    </>
-                  )}
+              setPaymentSuccess(`₹${amount} added successfully!`);
+              setShowAddBalance(false);
+            }}
+          />
+        )}
 
-                  {selectedMethod === "upi" && (
-                    <WalletPayUI
-                      title="Scan UPI QR"
-                      qr="/sample-qr.png"
-                      onConfirm={() => {
-                        const newBalance = walletBalance + 100;
-                        setWalletBalance(newBalance);
-                        localStorage.setItem("walletBalance", String(newBalance));
-                        setPaymentSuccess("₹100 added successfully!");
-                        setShowAddBalance(false);
-                      }}
-                    />
-                  )}
+        {/* ---- USDT PAYMENT ---- */}
+        {selectedMethod === "usdt" && (
+          <WalletPayUI
+            title="Scan USDT Wallet"
+            qr="/sample-usdt-qr.png"
+            onConfirm={() => {
+              const newBalance = walletBalance + Number(amount);
+              setWalletBalance(newBalance);
 
-                  {selectedMethod === "usdt" && (
-                    <WalletPayUI
-                      title="Scan USDT Wallet"
-                      qr="/sample-usdt-qr.png"
-                      onConfirm={() => {
-                        const newBalance = walletBalance + 100;
-                        setWalletBalance(newBalance);
-                        localStorage.setItem("walletBalance", String(newBalance));
-                        setPaymentSuccess("USDT payment confirmed!");
-                        setShowAddBalance(false);
-                      }}
-                    />
-                  )}
-                </div>
-              )}
-            </>
-          )}
+              localStorage.setItem("walletBalance", String(newBalance));
+
+              setPaymentSuccess(`USDT payment confirmed! Amount: ₹${amount}`);
+              setShowAddBalance(false);
+            }}
+          />
+        )}
+      </div>
+    )}
+  </>
+)}
+
 
           {/* =============== ACCOUNT TAB =============== */}
           {activeTab === "account" && (
