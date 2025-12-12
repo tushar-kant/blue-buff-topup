@@ -33,31 +33,50 @@ export default function BuyFlowPage() {
   const totalPrice = price - discount;
 
   // ---------------- STEP 1: VALIDATE ----------------
-  const handleValidate = () => {
-    const mock = {
-      statusCode: 201,
-      data: {
-        _id: "693ba5c190f7a80f7cfa7d70",
-        userName: "Yeagorrrr",
-        playerId,
-        zoneId,
-      },
-    };
+// ---------------- STEP 1: VALIDATE ----------------
+const handleValidate = async () => {
+  if (!playerId || !zoneId) {
+    alert("Please enter Player ID and Zone ID");
+    return;
+  }
 
-    setValidateData(mock.data);
-
-    const reviewMock = {
-      data: {
-        userName: "Yeagorrrr",
-        playerId,
-        zoneId,
-      },
-    };
-
-    setReviewData(reviewMock.data);
-
-    setStep(2);
+  const payload = {
+    gameSlug: slug,
+    itemSlug: itemSlug,
+    playerId,
+    zoneId
   };
+
+  try {
+    const res = await fetch("/api/validate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+
+    if (!data?.success || !data?.data?.userName) {
+      alert("Invalid Player ID / Zone ID");
+      return;
+    }
+
+    // SUCCESS → store data
+    setValidateData(data.data);
+
+    setReviewData({
+      userName: data.data.userName,
+      playerId: data.data.playerId,
+      zoneId: data.data.zoneId,
+    });
+
+    setStep(2); // go to review
+
+  } catch (error) {
+    console.error("Validate Error:", error);
+    alert("Something went wrong. Try again.");
+  }
+};
 
   // ---------------- STEP 3: PAY ----------------
   const handlePayment = () => {

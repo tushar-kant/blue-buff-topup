@@ -8,60 +8,80 @@ import logo from "@/public/logo.png";
 export default function GameBannerCarousel() {
   const [banners, setBanners] = useState([]);
   const [current, setCurrent] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+
     fetch("/api/game-banners")
       .then((res) => res.json())
-      .then((data) => setBanners(data.data.banners));
+      .then((data) => {
+        if (!mounted) return;
+
+        // API returns data: []
+        const items = data?.data ?? [];
+        setBanners(items);
+      })
+      .catch(() => {
+        if (mounted) setBanners([]);
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+
+    return () => (mounted = false);
   }, []);
 
-  // Auto slide + random change
+  // Auto slide
   useEffect(() => {
-    if (!banners.length) return;
+    if (!banners?.length) return;
 
     const interval = setInterval(() => {
-      // 40% chance go to next slide
-      // 60% chance jump to a random slide
       const randomChance = Math.random();
 
       if (randomChance < 0.4) {
         setCurrent((prev) => (prev + 1) % banners.length);
       } else {
-        const randomIndex = Math.floor(Math.random() * banners.length);
-        setCurrent(randomIndex);
+        setCurrent(Math.floor(Math.random() * banners.length));
       }
     }, 4000);
 
     return () => clearInterval(interval);
   }, [banners]);
 
-  const goNext = () => {
-    setCurrent((prev) => (prev + 1) % banners.length);
-  };
+  const goNext = () =>
+    banners.length && setCurrent((prev) => (prev + 1) % banners.length);
 
-  const goPrev = () => {
+  const goPrev = () =>
+    banners.length &&
     setCurrent((prev) => (prev - 1 + banners.length) % banners.length);
-  };
 
-  if (!banners.length) return null;
+  if (loading)
+    return (
+      <div className="w-full max-w-5xl mx-auto mt-6">
+        <div className="h-[180px] md:h-[260px] rounded-2xl bg-[var(--card)]/40 flex items-center justify-center">
+          <span className="text-[var(--muted)]">Loading banners...</span>
+        </div>
+      </div>
+    );
+
+  if (!banners?.length) return null;
 
   return (
     <div className="relative w-full max-w-5xl mx-auto mt-6 select-none">
-
-      {/* Slider Area */}
       <div className="overflow-hidden rounded-2xl shadow-lg h-[180px] md:h-[260px] relative">
 
         {banners.map((banner, i) => (
           <Link
-            key={banner.bannerId}
-            href={`/games/${banner.slug}`}
+            key={i}
+            href={banner.bannerLink || "/"}
             className={`absolute inset-0 transition-all duration-700 ease-out ${
-              i === current ? "opacity-100" : "opacity-0"
+              i === current ? "opacity-100" : "opacity-0 pointer-events-none"
             }`}
           >
             <Image
-              src={banner.image || logo}
-              alt={banner.title}
+              src={banner.bannerImage || logo}
+              alt={banner.bannerTitle}
               fill
               className="object-cover"
             />
@@ -85,18 +105,18 @@ export default function GameBannerCarousel() {
         </button>
       </div>
 
-      {/* Dots */}
+      {/* DOTS */}
       <div className="flex justify-center gap-2 mt-3">
         {banners.map((_, i) => (
           <button
             key={i}
             onClick={() => setCurrent(i)}
-            className={`h-2 w-2 rounded-full transition-all ${
+            className={`h-2 rounded-full transition-all ${
               current === i
                 ? "bg-[var(--accent)] w-5"
-                : "bg-[var(--muted)]"
+                : "bg-[var(--muted)] w-2"
             }`}
-          ></button>
+          />
         ))}
       </div>
     </div>
