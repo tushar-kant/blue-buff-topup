@@ -64,7 +64,7 @@ export default function RegionPage() {
                 </p>
               </div>
             ) : (
-              <p className="text-red-500 font-semibold">{result?.message || "Error"}</p>
+              <p className="text-red-500 font-semibold">{ "ID not found"}</p>
             )}
 
           </div>
