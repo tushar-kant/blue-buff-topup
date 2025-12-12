@@ -1,114 +1,125 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import Image from "next/image";
+import QRCode from "qrcode";
 import logo from "@/public/logo.png";
+import AuthGuard from "../../../../../components/AuthGuard";
 
 export default function BuyFlowPage() {
   const { slug, itemSlug } = useParams();
+  const params = useSearchParams();
 
   const [step, setStep] = useState(1);
 
-  // Inputs for step 1
+  // Inputs
   const [playerId, setPlayerId] = useState("");
   const [zoneId, setZoneId] = useState("");
 
-  // Data objects
-  const [validateData, setValidateData] = useState(null);
+  // Review data
   const [reviewData, setReviewData] = useState(null);
 
-  // Payment mode
+  // Payment
   const [paymentMethod, setPaymentMethod] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  // User mock
-  const userEmail = "tusharkantanayak713@gmail.com";
-  const userPhone = "6372305866";
+  // UPI
+  const [upiQR, setUpiQR] = useState("");
 
-  // Mock payment info
-  const itemName = "Weekly Pass";
-  const price = 150;
-  const discount = 20;
+  // Email + Phone from localStorage
+  const [userEmail, setUserEmail] = useState("");
+  const [userPhone, setUserPhone] = useState("");
+
+  useEffect(() => {
+    setUserEmail(localStorage.getItem("email") || "");
+    setUserPhone(localStorage.getItem("phone") || "");
+  }, []);
+
+  // =============== ITEM DATA FROM ROUTER QUERY ===================
+  const itemName = params.get("name");
+  const price = Number(params.get("price"));
+  const discount = Number(params.get("discount"));
   const totalPrice = price - discount;
+  const itemImage = params.get("image") || logo;
 
-  // ---------------- STEP 1: VALIDATE ----------------
-// ---------------- STEP 1: VALIDATE ----------------
-const handleValidate = async () => {
-  if (!playerId || !zoneId) {
-    alert("Please enter Player ID and Zone ID");
-    return;
-  }
-
-  const payload = {
-    gameSlug: slug,
-    itemSlug: itemSlug,
-    playerId,
-    zoneId
-  };
-
-  try {
-    const res = await fetch("/api/validate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-
-    const data = await res.json();
-
-    if (!data?.success || !data?.data?.userName) {
-      alert("Invalid Player ID / Zone ID");
+  // ========== STEP 1 VALIDATE ==========
+  const handleValidate = async () => {
+    if (!playerId || !zoneId) {
+      alert("Please enter Player ID and Zone ID");
       return;
     }
 
-    // SUCCESS → store data
-    setValidateData(data.data);
+    try {
+      const res = await fetch("/api/check-region", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: playerId, zone: zoneId }),
+      });
 
-    setReviewData({
-      userName: data.data.userName,
-      playerId: data.data.playerId,
-      zoneId: data.data.zoneId,
-    });
+      const data = await res.json();
 
-    setStep(2); // go to review
+      if (data?.success !== 200) {
+        alert("Invalid Player ID / Zone ID");
+        return;
+      }
 
-  } catch (error) {
-    console.error("Validate Error:", error);
-    alert("Something went wrong. Try again.");
-  }
-};
+      setReviewData({
+        userName: data.data.username,
+        region: data.data.region,
+        playerId,
+        zoneId,
+      });
 
-  // ---------------- STEP 3: PAY ----------------
+      setStep(2);
+    } catch (error) {
+      alert("Something went wrong. Try again.");
+    }
+  };
+
+  // ========== UPI QR ==========
+  const handleUPI = async () => {
+    setPaymentMethod("upi");
+
+    const upiId = "yourupi@bank";
+    const amount = totalPrice;
+    const upiString = `upi://pay?pa=${upiId}&pn=YourStore&am=${amount}&cu=INR`;
+
+    const qr = await QRCode.toDataURL(upiString);
+    setUpiQR(qr);
+  };
+
+  // ========== PAYMENT COMPLETE ==========
   const handlePayment = () => {
     setTimeout(() => {
       setShowSuccess(true);
-    }, 800);
+    }, 600);
   };
 
   return (
+    <AuthGuard>
     <section className="px-6 py-10 max-w-3xl mx-auto">
 
-      {/* ---------------- TOP STEP BAR ---------------- */}
+      {/* STEP BAR */}
       <div className="flex justify-between mb-8 font-semibold">
         <span className={step >= 1 ? "text-[var(--accent)]" : ""}>1. Validate</span>
         <span className={step >= 2 ? "text-[var(--accent)]" : ""}>2. Review</span>
         <span className={step >= 3 ? "text-[var(--accent)]" : ""}>3. Payment</span>
       </div>
 
-      {/* ========================= SUCCESS MESSAGE ========================= */}
+      {/* SUCCESS SCREEN */}
       {showSuccess && (
         <div className="bg-green-600 text-white p-6 rounded-xl text-center text-lg font-semibold shadow-lg">
-          ✅ Payment Successful!  
+          ✅ Payment Successful!
           <p className="text-sm mt-2 opacity-80">Your order has been placed.</p>
         </div>
       )}
 
       {!showSuccess && (
         <>
-          {/* ========================= STEP 1 ========================= */}
+          {/* ===================== STEP 1 ===================== */}
           {step === 1 && (
             <div className="space-y-4">
-
               <h2 className="text-xl font-bold">Enter Details to Validate</h2>
 
               <input
@@ -134,27 +145,24 @@ const handleValidate = async () => {
             </div>
           )}
 
-          {/* ========================= STEP 2 ========================= */}
+          {/* ===================== STEP 2 ===================== */}
           {step === 2 && reviewData && (
             <div className="space-y-6">
 
-              {/* GAME ICON + NAME */}
-              <div className="text-center">
-                <Image
-                  src={logo}
-                  alt="Game"
-                  width={120}
-                  height={120}
-                  className="rounded-xl mx-auto"
-                />
-                <h2 className="text-2xl font-bold mt-2">Mobile Legends</h2>
+              {/* GAME + ITEM INFO */}
+              <div className="flex items-center gap-3 p-2 rounded-lg">
+                <Image src={itemImage} alt="Item" width={55} height={55} className="rounded-xl" />
+                <div className="flex flex-col leading-tight">
+                  <h2 className="text-lg font-bold">{itemName}</h2>
+                  <p className="text-sm text-gray-400">Selected Item</p>
+                </div>
               </div>
 
-              {/* USER DETAILS */}
+              {/* USER CONTACT */}
               <div className="bg-[var(--card)] p-4 rounded-lg border border-[var(--border)]">
-                <h3 className="font-semibold mb-2">User Details</h3>
-                <p>Email: {userEmail}</p>
-                <p>Phone: {userPhone}</p>
+                <h3 className="font-semibold mb-2">Your Details</h3>
+                <p>Email: {userEmail || "Not Found"}</p>
+                <p>Phone: {userPhone || "Not Found"}</p>
               </div>
 
               {/* GAME DETAILS */}
@@ -165,7 +173,7 @@ const handleValidate = async () => {
                 <p>Zone ID: {reviewData.zoneId}</p>
               </div>
 
-              {/* PAYMENT MODE SELECTION */}
+              {/* PAYMENT METHOD */}
               <div className="bg-[var(--card)] p-4 rounded-lg border border-[var(--border)] space-y-3">
                 <h3 className="font-semibold mb-2">Select Payment Method</h3>
 
@@ -181,7 +189,7 @@ const handleValidate = async () => {
                 </button>
 
                 <button
-                  onClick={() => setPaymentMethod("upi")}
+                  onClick={handleUPI}
                   className={`w-full p-3 rounded-lg border ${
                     paymentMethod === "upi"
                       ? "border-[var(--accent)] bg-[var(--accent)]/20"
@@ -192,18 +200,15 @@ const handleValidate = async () => {
                 </button>
               </div>
 
-              {/* PRICE SUMMARY */}
+              {/* PRICE */}
               <div className="bg-[var(--card)] p-4 rounded-lg border border-[var(--border)]">
                 <h3 className="font-semibold mb-2">Price Details</h3>
 
                 <p>Item: {itemName}</p>
-                <p>Price: ₹{price}.00</p>
-                <p>Discount: - ₹{discount}.00</p>
-                <p className="opacity-50">Coupon Discount: - ₹0.00 (disabled)</p>
+                <p>Price: ₹{price}</p>
+                <p>Discount: -₹{discount}</p>
 
-                <p className="font-bold mt-2 text-lg">
-                  Total Price: ₹{totalPrice}.00
-                </p>
+                <p className="font-bold mt-2 text-lg">Total Price: ₹{totalPrice}</p>
 
                 <button
                   onClick={() => setStep(3)}
@@ -216,24 +221,23 @@ const handleValidate = async () => {
             </div>
           )}
 
-          {/* ========================= STEP 3 ========================= */}
+          {/* ===================== STEP 3 ===================== */}
           {step === 3 && (
             <div className="space-y-6">
 
               <h2 className="text-xl font-bold">Payment</h2>
 
-              {/* If UPI → Show QR code */}
+              {/* UPI */}
               {paymentMethod === "upi" && (
                 <div className="bg-[var(--card)] p-6 rounded-lg border border-[var(--border)] text-center">
                   <p className="mb-3 font-semibold">Scan to Pay</p>
 
-                  <div className="w-40 h-40 bg-white mx-auto p-3 rounded-lg">
-                    <Image
-                      src=""
-                      alt="UPI QR"
-                      width={200}
-                      height={200}
-                    />
+                  <div className="w-44 h-44 bg-white mx-auto p-3 rounded-lg flex items-center justify-center">
+                    {upiQR ? (
+                      <Image src={upiQR} alt="UPI QR" width={200} height={200} />
+                    ) : (
+                      <p>Generating QR...</p>
+                    )}
                   </div>
 
                   <button
@@ -245,7 +249,7 @@ const handleValidate = async () => {
                 </div>
               )}
 
-              {/* If Wallet → Show Balance + Pay */}
+              {/* WALLET */}
               {paymentMethod === "wallet" && (
                 <div className="bg-[var(--card)] p-6 rounded-lg border border-[var(--border)] text-center">
                   <p>Wallet Balance: ₹0</p>
@@ -263,5 +267,6 @@ const handleValidate = async () => {
         </>
       )}
     </section>
+     </AuthGuard>
   );
 }

@@ -70,9 +70,17 @@ export default function GameDetailPage() {
           {game.itemId.map((item, index) => (
             <div
               key={index}
-              onClick={() =>
-                router.push(`/games/${slug}/buy/${item.itemSlug}`)
-              }
+            onClick={() => {
+  const query = new URLSearchParams({
+    name: item.itemName,
+    price: item.sellingPrice.toString(),
+    dummy: item.dummyPrice.toString(),
+    image: item.itemImageId?.image || "",
+  });
+
+  router.push(`/games/${slug}/buy/${item.itemSlug}?${query.toString()}`);
+}}
+
               className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-3 cursor-pointer hover:scale-105 transition-all shadow"
             >
               <div className="w-full h-24 relative mb-3 rounded-lg overflow-hidden">
