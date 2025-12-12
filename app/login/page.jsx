@@ -31,72 +31,53 @@ export default function AuthPage() {
   const validatePassword = (pass) => pass.length >= 6;
 
   // ------------------ LOGIN ------------------
-  const handleLogin = () => {
-    let err = {};
-    setSuccess("");
+const handleLogin = async () => {
+  const res = await fetch("/api/auth/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(loginData),
+  });
 
-    const userInput = loginData.user.trim();
-    const passInput = loginData.password;
+  const data = await res.json();
 
-    // Validate input format
-    if (!userInput) err.user = "Enter email or phone";
-    else if (!validateEmail(userInput) && !validatePhone(userInput))
-      err.user = "Invalid email or phone number";
+  if (!data.success) {
+    setErrors({ user: data.message });
+    return;
+  }
 
-    if (!validatePassword(passInput))
-      err.password = "Password must be at least 6 characters";
+  // Save to localStorage
+  localStorage.setItem("isLoggedIn", "true");
+  localStorage.setItem("userName", data.user.name);
+  localStorage.setItem("walletBalance", data.user.wallet);
+    localStorage.setItem("order", data.user.order);
+  localStorage.setItem("email", data.user.email);
+  localStorage.setItem("phone", data.user.phone);
+  localStorage.setItem("userId", data.user.userId);
 
-    setErrors(err);
-    if (Object.keys(err).length > 0) return;
+  setSuccess("Login successful! Redirecting...");
+  setTimeout(() => window.location.href = "/", 1000);
+};
 
-    // ---------- Dummy validation ----------
-    const isMatch =
-      (userInput === dummyUser.email || userInput === dummyUser.phone) &&
-      passInput === dummyUser.password;
-
-    if (!isMatch) {
-      setErrors({ user: "Invalid credentials", password: "Check again" });
-      return;
-    }
-
-    // ---------------------------------------------------
-    // SUCCESSFUL LOGIN → Save to localStorage
-    // ---------------------------------------------------
-    localStorage.setItem("isLoggedIn", "true");
-    localStorage.setItem("userName", dummyUser.name);
-    localStorage.setItem("walletBalance", dummyUser.wallet);
-    localStorage.setItem("email", dummyUser.email);
-    localStorage.setItem("phone", dummyUser.phone);
-
-    setErrors({});
-    setSuccess("Login successful! Redirecting...");
-    console.log("Logged in as:", dummyUser);
-
-    setTimeout(() => {
-      window.location.href = "/"; // refresh header
-    }, 1200);
-  };
 
   // ------------------ REGISTER ------------------
-  const handleRegister = () => {
-    let err = {};
-    setSuccess("");
+const handleRegister = async () => {
+  const res = await fetch("/api/auth/register", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(regData),
+  });
 
-    if (!regData.name.trim()) err.name = "Name is required";
-    if (!validateEmail(regData.email)) err.email = "Invalid email";
-    if (!validatePhone(regData.phone)) err.phone = "Invalid phone number";
-    if (!validatePassword(regData.password))
-      err.password = "Password must be minimum 6 characters";
+  const data = await res.json();
 
-    setErrors(err);
+  if (!data.success) {
+    setErrors({ email: data.message });
+    return;
+  }
 
-    if (Object.keys(err).length === 0) {
-      // simulate register success
-      console.log("Register Payload:", regData);
-      setSuccess("Account created successfully! Please login.");
-      setTab("login");
-    }
-  };
+  setSuccess("Account created! Please log in.");
+  setTab("login");
+};
+
 
   return (
     <section className="min-h-screen flex items-center justify-center bg-[var(--background)] p-6 text-[var(--foreground)]">

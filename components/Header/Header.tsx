@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import ThemeToggle from "../ThemeToggle/ThemeToggle";
 import { FiPlus } from "react-icons/fi";
 import { FaUser } from "react-icons/fa";
+import router from "next/router";
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -98,17 +99,22 @@ export default function Header() {
                 ) : (
                   <>
                     {/* Wallet */}
+                      <Link
+                      href="/dashboard"
+                      className="block py-2 hover:text-[var(--accent)]"
+                      onClick={() => setUserMenuOpen(false)}
+                    >
                     <div className="flex items-center justify-between bg-[var(--background)] px-3 py-2 rounded-lg border border-[var(--border)] mb-3">
                       <span className="text-[var(--accent)] font-semibold">
                         ₹{walletBalance}
                       </span>
                       <button
-                        onClick={() => alert("Add wallet coming soon")}
                         className="text-[var(--accent)]"
                       >
                         <FiPlus size={18} />
                       </button>
                     </div>
+                    </Link>
 
                     {/* Dashboard */}
                     <Link

@@ -13,21 +13,16 @@ export default function BuyFlowPage() {
 
   const [step, setStep] = useState(1);
 
-  // Inputs
   const [playerId, setPlayerId] = useState("");
   const [zoneId, setZoneId] = useState("");
 
-  // Review data
   const [reviewData, setReviewData] = useState(null);
 
-  // Payment
   const [paymentMethod, setPaymentMethod] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  // UPI
   const [upiQR, setUpiQR] = useState("");
 
-  // Email + Phone from localStorage
   const [userEmail, setUserEmail] = useState("");
   const [userPhone, setUserPhone] = useState("");
 
@@ -36,7 +31,7 @@ export default function BuyFlowPage() {
     setUserPhone(localStorage.getItem("phone") || "");
   }, []);
 
-  // =============== ITEM DATA FROM ROUTER QUERY ===================
+  // ITEM DATA FROM URL
   const itemName = params.get("name");
   const price = Number(params.get("price"));
   const discount = Number(params.get("discount"));
@@ -77,7 +72,7 @@ export default function BuyFlowPage() {
     }
   };
 
-  // ========== UPI QR ==========
+  // ========== GENERATE UPI QR ==========
   const handleUPI = async () => {
     setPaymentMethod("upi");
 
@@ -89,8 +84,38 @@ export default function BuyFlowPage() {
     setUpiQR(qr);
   };
 
+  // ========== CREATE ORDER API CALL ==========
+  const createOrder = async () => {
+    const payload = {
+      gameSlug: slug,
+      itemSlug: itemSlug,
+      itemName:itemName,
+      playerId: reviewData.playerId,
+      zoneId: reviewData.zoneId,
+      paymentMethod,
+      price: totalPrice,
+      email: userEmail || null,
+      phone: userPhone || null,
+    };
+
+    const res = await fetch("/api/order/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    return res.json();
+  };
+
   // ========== PAYMENT COMPLETE ==========
-  const handlePayment = () => {
+  const handlePayment = async () => {
+    const result = await createOrder();
+
+    if (!result.success) {
+      alert("Order failed: " + result.message);
+      return;
+    }
+
     setTimeout(() => {
       setShowSuccess(true);
     }, 600);
@@ -98,175 +123,163 @@ export default function BuyFlowPage() {
 
   return (
     <AuthGuard>
-    <section className="px-6 py-10 max-w-3xl mx-auto">
+      <section className="px-6 py-10 max-w-3xl mx-auto">
 
-      {/* STEP BAR */}
-      <div className="flex justify-between mb-8 font-semibold">
-        <span className={step >= 1 ? "text-[var(--accent)]" : ""}>1. Validate</span>
-        <span className={step >= 2 ? "text-[var(--accent)]" : ""}>2. Review</span>
-        <span className={step >= 3 ? "text-[var(--accent)]" : ""}>3. Payment</span>
-      </div>
-
-      {/* SUCCESS SCREEN */}
-      {showSuccess && (
-        <div className="bg-green-600 text-white p-6 rounded-xl text-center text-lg font-semibold shadow-lg">
-          ✅ Payment Successful!
-          <p className="text-sm mt-2 opacity-80">Your order has been placed.</p>
+        {/* STEP BAR */}
+        <div className="flex justify-between mb-8 font-semibold">
+          <span className={step >= 1 ? "text-[var(--accent)]" : ""}>1. Validate</span>
+          <span className={step >= 2 ? "text-[var(--accent)]" : ""}>2. Review</span>
+          <span className={step >= 3 ? "text-[var(--accent)]" : ""}>3. Payment</span>
         </div>
-      )}
 
-      {!showSuccess && (
-        <>
-          {/* ===================== STEP 1 ===================== */}
-          {step === 1 && (
-            <div className="space-y-4">
-              <h2 className="text-xl font-bold">Enter Details to Validate</h2>
+        {/* SUCCESS SCREEN */}
+        {showSuccess && (
+          <div className="bg-green-600 text-white p-6 rounded-xl text-center text-lg font-semibold shadow-lg">
+            ✅ Payment Successful!
+            <p className="text-sm mt-2 opacity-80">Your order has been placed.</p>
+          </div>
+        )}
 
-              <input
-                value={playerId}
-                onChange={(e) => setPlayerId(e.target.value)}
-                placeholder="Player ID"
-                className="p-3 rounded-lg bg-[var(--card)] border border-[var(--border)] w-full"
-              />
+        {!showSuccess && (
+          <>
+            {/* STEP 1 */}
+            {step === 1 && (
+              <div className="space-y-4">
+                <h2 className="text-xl font-bold">Enter Details to Validate</h2>
 
-              <input
-                value={zoneId}
-                onChange={(e) => setZoneId(e.target.value)}
-                placeholder="Zone ID"
-                className="p-3 rounded-lg bg-[var(--card)] border border-[var(--border)] w-full"
-              />
+                <input
+                  value={playerId}
+                  onChange={(e) => setPlayerId(e.target.value)}
+                  placeholder="Player ID"
+                  className="p-3 rounded-lg bg-[var(--card)] border border-[var(--border)] w-full"
+                />
 
-              <button
-                onClick={handleValidate}
-                className="bg-[var(--accent)] text-black p-3 rounded-lg w-full font-semibold"
-              >
-                Validate
-              </button>
-            </div>
-          )}
-
-          {/* ===================== STEP 2 ===================== */}
-          {step === 2 && reviewData && (
-            <div className="space-y-6">
-
-              {/* GAME + ITEM INFO */}
-              <div className="flex items-center gap-3 p-2 rounded-lg">
-                <Image src={itemImage} alt="Item" width={55} height={55} className="rounded-xl" />
-                <div className="flex flex-col leading-tight">
-                  <h2 className="text-lg font-bold">{itemName}</h2>
-                  <p className="text-sm text-gray-400">Selected Item</p>
-                </div>
-              </div>
-
-              {/* USER CONTACT */}
-              <div className="bg-[var(--card)] p-4 rounded-lg border border-[var(--border)]">
-                <h3 className="font-semibold mb-2">Your Details</h3>
-                <p>Email: {userEmail || "Not Found"}</p>
-                <p>Phone: {userPhone || "Not Found"}</p>
-              </div>
-
-              {/* GAME DETAILS */}
-              <div className="bg-[var(--card)] p-4 rounded-lg border border-[var(--border)]">
-                <h3 className="font-semibold mb-2">Game Details</h3>
-                <p>Player Name: {reviewData.userName}</p>
-                <p>User ID: {reviewData.playerId}</p>
-                <p>Zone ID: {reviewData.zoneId}</p>
-              </div>
-
-              {/* PAYMENT METHOD */}
-              <div className="bg-[var(--card)] p-4 rounded-lg border border-[var(--border)] space-y-3">
-                <h3 className="font-semibold mb-2">Select Payment Method</h3>
+                <input
+                  value={zoneId}
+                  onChange={(e) => setZoneId(e.target.value)}
+                  placeholder="Zone ID"
+                  className="p-3 rounded-lg bg-[var(--card)] border border-[var(--border)] w-full"
+                />
 
                 <button
-                  onClick={() => setPaymentMethod("wallet")}
-                  className={`w-full p-3 rounded-lg border ${
-                    paymentMethod === "wallet"
-                      ? "border-[var(--accent)] bg-[var(--accent)]/20"
-                      : "border-[var(--border)]"
-                  }`}
+                  onClick={handleValidate}
+                  className="bg-[var(--accent)] text-black p-3 rounded-lg w-full font-semibold"
                 >
-                  Wallet (₹0)
-                </button>
-
-                <button
-                  onClick={handleUPI}
-                  className={`w-full p-3 rounded-lg border ${
-                    paymentMethod === "upi"
-                      ? "border-[var(--accent)] bg-[var(--accent)]/20"
-                      : "border-[var(--border)]"
-                  }`}
-                >
-                  UPI
+                  Validate
                 </button>
               </div>
+            )}
 
-              {/* PRICE */}
-              <div className="bg-[var(--card)] p-4 rounded-lg border border-[var(--border)]">
-                <h3 className="font-semibold mb-2">Price Details</h3>
+            {/* STEP 2 */}
+            {step === 2 && reviewData && (
+              <div className="space-y-6">
 
-                <p>Item: {itemName}</p>
-                <p>Price: ₹{price}</p>
-                <p>Discount: -₹{discount}</p>
-
-                <p className="font-bold mt-2 text-lg">Total Price: ₹{totalPrice}</p>
-
-                <button
-                  onClick={() => setStep(3)}
-                  disabled={!paymentMethod}
-                  className="bg-[var(--accent)] text-black p-3 rounded-lg w-full font-semibold mt-4 disabled:opacity-50"
-                >
-                  Proceed to Pay
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* ===================== STEP 3 ===================== */}
-          {step === 3 && (
-            <div className="space-y-6">
-
-              <h2 className="text-xl font-bold">Payment</h2>
-
-              {/* UPI */}
-              {paymentMethod === "upi" && (
-                <div className="bg-[var(--card)] p-6 rounded-lg border border-[var(--border)] text-center">
-                  <p className="mb-3 font-semibold">Scan to Pay</p>
-
-                  <div className="w-44 h-44 bg-white mx-auto p-3 rounded-lg flex items-center justify-center">
-                    {upiQR ? (
-                      <Image src={upiQR} alt="UPI QR" width={200} height={200} />
-                    ) : (
-                      <p>Generating QR...</p>
-                    )}
+                {/* GAME + ITEM */}
+                <div className="flex items-center gap-3 p-2 rounded-lg">
+                  <Image src={itemImage} alt="Item" width={55} height={55} className="rounded-xl" />
+                  <div className="flex flex-col leading-tight">
+                    <h2 className="text-lg font-bold">{itemName}</h2>
+                    <p className="text-sm text-gray-400">Selected Item</p>
                   </div>
+                </div>
+
+                {/* USER CONTACT */}
+                <div className="bg-[var(--card)] p-4 rounded-lg border border-[var(--border)]">
+                  <h3 className="font-semibold mb-2">Your Details</h3>
+                  <p>Email: {userEmail || "Not Found"}</p>
+                  <p>Phone: {userPhone || "Not Found"}</p>
+                </div>
+
+                {/* GAME DETAILS */}
+                <div className="bg-[var(--card)] p-4 rounded-lg border border-[var(--border)]">
+                  <h3 className="font-semibold mb-2">Game Details</h3>
+                  <p>Player Name: {reviewData.userName}</p>
+                  <p>User ID: {reviewData.playerId}</p>
+                  <p>Zone ID: {reviewData.zoneId}</p>
+                </div>
+
+                {/* PAYMENT METHOD */}
+                <div className="bg-[var(--card)] p-4 rounded-lg border border-[var(--border)] space-y-3">
+                  <h3 className="font-semibold mb-2">Select Payment Method</h3>
 
                   <button
-                    onClick={handlePayment}
-                    className="bg-[var(--accent)] text-black p-3 rounded-lg w-full font-semibold mt-4"
+                    onClick={() => setPaymentMethod("wallet")}
+                    className="w-full p-3 rounded-lg border border-[var(--border)]"
                   >
-                    I Have Paid
+                    Wallet (₹0)
+                  </button>
+
+                  <button onClick={handleUPI} className="w-full p-3 rounded-lg border border-[var(--border)]">
+                    UPI
                   </button>
                 </div>
-              )}
 
-              {/* WALLET */}
-              {paymentMethod === "wallet" && (
-                <div className="bg-[var(--card)] p-6 rounded-lg border border-[var(--border)] text-center">
-                  <p>Wallet Balance: ₹0</p>
+                {/* PRICE */}
+                <div className="bg-[var(--card)] p-4 rounded-lg border border-[var(--border)]">
+                  <h3 className="font-semibold mb-2">Price Details</h3>
+
+                  <p>Item: {itemName}</p>
+                  <p>Price: ₹{price}</p>
+                  <p>Discount: -₹{discount}</p>
+
+                  <p className="font-bold text-lg mt-2">Total: ₹{totalPrice}</p>
 
                   <button
-                    onClick={handlePayment}
-                    className="bg-[var(--accent)] text-black p-3 rounded-lg w-full font-semibold mt-4"
+                    onClick={() => setStep(3)}
+                    disabled={!paymentMethod}
+                    className="bg-[var(--accent)] text-black p-3 rounded-lg w-full mt-4 disabled:opacity-50"
                   >
-                    Pay ₹{totalPrice}
+                    Proceed to Pay
                   </button>
                 </div>
-              )}
-            </div>
-          )}
-        </>
-      )}
-    </section>
-     </AuthGuard>
+              </div>
+            )}
+
+            {/* STEP 3 */}
+            {step === 3 && (
+              <div className="space-y-6">
+                <h2 className="text-xl font-bold">Payment</h2>
+
+                {/* UPI */}
+                {paymentMethod === "upi" && (
+                  <div className="bg-[var(--card)] p-6 rounded-lg border border-[var(--border)] text-center">
+                    <p className="mb-3 font-semibold">Scan to Pay</p>
+
+                    <div className="w-44 h-44 mx-auto bg-white p-3 rounded-lg">
+                      {upiQR ? (
+                        <Image src={upiQR} alt="UPI QR" width={200} height={200} />
+                      ) : (
+                        <p>Generating QR...</p>
+                      )}
+                    </div>
+
+                    <button
+                      onClick={handlePayment}
+                      className="bg-[var(--accent)] text-black p-3 rounded-lg w-full font-semibold mt-4"
+                    >
+                      I Have Paid
+                    </button>
+                  </div>
+                )}
+
+                {/* WALLET */}
+                {paymentMethod === "wallet" && (
+                  <div className="bg-[var(--card)] p-6 rounded-lg border border-[var(--border)] text-center">
+                    <p>Wallet Balance: ₹0</p>
+
+                    <button
+                      onClick={handlePayment}
+                      className="bg-[var(--accent)] text-black p-3 rounded-lg w-full font-semibold mt-4"
+                    >
+                      Pay ₹{totalPrice}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </>
+        )}
+      </section>
+    </AuthGuard>
   );
 }
