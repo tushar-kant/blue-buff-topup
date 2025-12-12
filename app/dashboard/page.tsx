@@ -2,6 +2,11 @@
 
 import { useState, useEffect } from "react";
 import AuthGuard from "../../components/AuthGuard";
+import DashboardCard from "../../components/Dashboard/DashboardCard";
+import OrderItem from "../../components/Dashboard/OrderItem";
+import WalletTab from "../../components/Dashboard/WalletTab";
+import AccountTab from "../../components/Dashboard/AccountTab"; // Add this import
+import QueryTab from "../../components/Dashboard/QueryTab"; // Add this import
 
 type OrderType = {
   gameSlug: string;
@@ -19,24 +24,8 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("orders");
 
   const [orders, setOrders] = useState<OrderType[]>([]);
-  const [queryType, setQueryType] = useState("");
-  const [queryMessage, setQueryMessage] = useState("");
-  const [querySuccess, setQuerySuccess] = useState("");
-
-  const [showAddBalance, setShowAddBalance] = useState(false);
-  const [selectedMethod, setSelectedMethod] = useState("");
-  const [paymentSuccess, setPaymentSuccess] = useState("");
-
-  const [amount, setAmount] = useState("");
-  const [amountError, setAmountError] = useState("");
-
-  const [newPass, setNewPass] = useState("");
-  const [passSuccess, setPassSuccess] = useState("");
-  const [passError, setPassError] = useState("");
-  const [loadingPass, setLoadingPass] = useState(false);
-
   const [totalOrders, setTotalOrders] = useState(0);
-  const [walletBalance, setWalletBalance] = useState(350);
+  const [walletBalance, setWalletBalance] = useState(0);
   const [userDetails, setUserDetails] = useState({
     name: "Demo User",
     email: "",
@@ -87,6 +76,13 @@ export default function Dashboard() {
       });
   }, []);
 
+  const tabCards = [
+    { key: "orders", label: "Total Orders", value: totalOrders },
+    { key: "wallet", label: "Wallet Balance", value: `₹${walletBalance}` },
+    { key: "account", label: "Account", value: "Manage" },
+    { key: "query", label: "Queries", value: "Support" },
+  ];
+
   // ===================================================================
   return (
     <AuthGuard>
@@ -94,24 +90,13 @@ export default function Dashboard() {
 
         {/* TOP CARDS */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-5 max-w-5xl mx-auto mb-10">
-          {[
-            { key: "orders", label: "Total Orders", value: totalOrders },
-            { key: "wallet", label: "Wallet Balance", value: `₹${walletBalance}` },
-            { key: "account", label: "Account", value: "Manage" },
-            { key: "query", label: "Queries", value: "Support" },
-          ].map((tab) => (
-            <div
+          {tabCards.map((tab) => (
+            <DashboardCard
               key={tab.key}
+              tab={tab}
+              activeTab={activeTab}
               onClick={() => setActiveTab(tab.key)}
-              className={`p-5 rounded-2xl cursor-pointer border transition-all duration-300 shadow-sm hover:shadow-lg ${
-                activeTab === tab.key
-                  ? "border-[var(--accent)] bg-[var(--card)]"
-                  : "border-[var(--border)] bg-[var(--card)]/60 hover:bg-[var(--card)]"
-              }`}
-            >
-              <p className="text-sm text-[var(--muted)]">{tab.label}</p>
-              <h2 className="text-2xl font-bold mt-1">{tab.value}</h2>
-            </div>
+            />
           ))}
         </div>
 
@@ -127,39 +112,8 @@ export default function Dashboard() {
                 <p className="text-[var(--muted)]">No orders found.</p>
               ) : (
                 <div className="space-y-5">
-                  {orders.map((o, i) => (
-                    <div key={i} className="p-5 bg-[var(--background)] border border-[var(--border)] rounded-2xl shadow">
-                      <div className="flex justify-between mb-2">
-                        <p className="text-xs text-[var(--muted)]">
-                          {new Date(o.createdAt).toLocaleString()}
-                        </p>
-                        <span
-                          className={`font-semibold ${
-                            o.status === "success"
-                              ? "text-green-500"
-                              : o.status === "failed"
-                              ? "text-red-500"
-                              : "text-yellow-500"
-                          }`}
-                        >
-                          {o.status.toUpperCase()}
-                        </span>
-                      </div>
-
-                      <div className="flex justify-between text-sm">
-                        <p><strong>Player ID:</strong> {o.playerId}</p>
-                        <p><strong>Zone ID:</strong> {o.zoneId}</p>
-                      </div>
-
-                      <div className="flex justify-between mt-2 text-sm">
-                        <p><strong>Payment:</strong> {o.paymentMethod}</p>
-                        <p><strong>Price:</strong> ₹{o.price}</p>
-                      </div>
-
-                      <p className="mt-3 text-sm text-[var(--muted)]">
-                        {o.gameSlug} — {o.itemSlug} — {o.itemName}
-                      </p>
-                    </div>
+                  {orders.map((order, index) => (
+                    <OrderItem key={index} order={order} />
                   ))}
                 </div>
               )}
@@ -168,265 +122,23 @@ export default function Dashboard() {
 
           {/* =============== WALLET TAB =============== */}
           {activeTab === "wallet" && (
-            <>
-              <h2 className="text-2xl font-semibold mb-6">Wallet Balance</h2>
-
-              {paymentSuccess && <p className="text-green-500 mb-4">{paymentSuccess}</p>}
-
-              <p className="text-lg font-bold mb-4">Current Balance: ₹{walletBalance}</p>
-
-              <button
-                onClick={() => {
-                  setShowAddBalance(true);
-                  setSelectedMethod("");
-                  setAmount("");
-                  setAmountError("");
-                }}
-                className="bg-[var(--accent)] text-white px-5 py-3 rounded-xl"
-              >
-                Add Money
-              </button>
-
-              {showAddBalance && (
-                <div className="mt-6 p-6 bg-[var(--background)] border border-[var(--border)] rounded-2xl">
-
-                  {/* ENTER AMOUNT */}
-                  {!selectedMethod && (
-                    <>
-                      <h3 className="text-lg font-semibold mb-4">Enter Amount</h3>
-
-                      <input
-                        type="number"
-                        placeholder="Minimum ₹100"
-                        value={amount}
-                        onChange={(e) => {
-                          setAmount(e.target.value);
-                          setAmountError("");
-                        }}
-                        className="w-full p-3 mb-2 bg-[var(--background)] border border-[var(--border)] rounded-xl"
-                      />
-
-                      {amountError && <p className="text-red-500 text-sm mb-2">{amountError}</p>}
-
-                      <button
-                        onClick={() => {
-                          if (!amount || Number(amount) < 100) {
-                            setAmountError("Minimum amount is ₹100");
-                            return;
-                          }
-                          setSelectedMethod("choose");
-                        }}
-                        className="w-full p-3 bg-[var(--accent)] text-white rounded-xl"
-                      >
-                        Continue
-                      </button>
-                    </>
-                  )}
-
-                  {/* CHOOSE PAYMENT METHOD */}
-                  {selectedMethod === "choose" && (
-                    <>
-                      <h3 className="text-lg font-semibold mb-4">Choose Payment Method</h3>
-
-                      <div className="space-y-3">
-                        <button
-                          onClick={() => setSelectedMethod("upi")}
-                          className="w-full p-3 border border-[var(--accent)] rounded-xl text-[var(--accent)]"
-                        >
-                          Pay with UPI
-                        </button>
-
-                        <button
-                          onClick={() => setSelectedMethod("usdt")}
-                          className="w-full p-3 border border-[var(--accent)] rounded-xl text-[var(--accent)]"
-                        >
-                          Pay with USDT (TRC20)
-                        </button>
-                      </div>
-                    </>
-                  )}
-
-                  {/* UPI Payment */}
-                  {selectedMethod === "upi" && (
-                    <WalletPayUI
-                      title="Scan UPI QR"
-                      qr="/sample-qr.png"
-                      onConfirm={() => {
-                        const newBalance = walletBalance + Number(amount);
-                        setWalletBalance(newBalance);
-                        localStorage.setItem("walletBalance", String(newBalance));
-                        setPaymentSuccess(`₹${amount} added successfully!`);
-                        setShowAddBalance(false);
-                      }}
-                    />
-                  )}
-
-                  {/* USDT Payment */}
-                  {selectedMethod === "usdt" && (
-                    <WalletPayUI
-                      title="Scan USDT Wallet"
-                      qr="/sample-usdt-qr.png"
-                      onConfirm={() => {
-                        const newBalance = walletBalance + Number(amount);
-                        setWalletBalance(newBalance);
-                        localStorage.setItem("walletBalance", String(newBalance));
-                        setPaymentSuccess(`USDT payment confirmed! Amount: ₹${amount}`);
-                        setShowAddBalance(false);
-                      }}
-                    />
-                  )}
-                </div>
-              )}
-            </>
+            <WalletTab 
+              walletBalance={walletBalance}
+              setWalletBalance={setWalletBalance}
+            />
           )}
 
           {/* =============== ACCOUNT TAB =============== */}
           {activeTab === "account" && (
-            <>
-              <h2 className="text-2xl font-semibold mb-6">Account Details</h2>
-
-              <div className="space-y-2 text-lg">
-                <p><strong>Name:</strong> {userDetails.name}</p>
-                <p><strong>Email:</strong> {userDetails.email}</p>
-                <p><strong>Phone:</strong> {userDetails.phone}</p>
-              </div>
-
-              <div className="mt-8">
-                <h3 className="font-semibold text-lg mb-3">Change Password</h3>
-
-                {passSuccess && <p className="text-green-500 text-sm">{passSuccess}</p>}
-                {passError && <p className="text-red-500 text-sm">{passError}</p>}
-
-                <input
-                  type="password"
-                  placeholder="New Password"
-                  value={newPass}
-                  onChange={(e) => {
-                    setNewPass(e.target.value);
-                    setPassError("");
-                  }}
-                  className="w-full p-3 border border-[var(--border)] rounded-xl mb-3"
-                />
-
-                <button
-                  disabled={loadingPass}
-                  onClick={async () => {
-                    if (newPass.length < 6) {
-                      setPassError("Minimum 6 characters required");
-                      return;
-                    }
-
-                    setLoadingPass(true);
-
-                    const res = await fetch("/api/auth/update-password", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({
-                        identifier: userDetails.email || userDetails.phone,
-                        newPassword: newPass,
-                      }),
-                    });
-
-                    const data = await res.json();
-                    setLoadingPass(false);
-
-                    if (!data.success) return setPassError(data.message);
-
-                    setNewPass("");
-                    setPassSuccess("Password updated!");
-                    setTimeout(() => setPassSuccess(""), 2000);
-                  }}
-                  className="bg-[var(--accent)] text-white px-5 py-3 rounded-xl"
-                >
-                  {loadingPass ? "Updating..." : "Update Password"}
-                </button>
-              </div>
-            </>
+            <AccountTab userDetails={userDetails} />
           )}
 
           {/* =============== QUERY TAB =============== */}
           {activeTab === "query" && (
-            <>
-              <h2 className="text-2xl font-semibold mb-6">Submit a Query</h2>
-
-              {querySuccess && <p className="text-green-500 mb-3">{querySuccess}</p>}
-
-              <select
-                value={queryType}
-                onChange={(e) => setQueryType(e.target.value)}
-                className="w-full p-3 rounded-xl bg-[var(--background)] border border-[var(--border)] mb-4"
-              >
-                <option value="">Select Query Type</option>
-                <option value="Order Issue">Order Issue</option>
-                <option value="Payment Issue">Payment Issue</option>
-                <option value="Wallet Issue">Wallet Issue</option>
-                <option value="General Inquiry">General Inquiry</option>
-              </select>
-
-              <textarea
-                className="w-full p-3 border border-[var(--border)] bg-[var(--background)] rounded-xl h-32"
-                placeholder="Write your message..."
-                value={queryMessage}
-                onChange={(e) => setQueryMessage(e.target.value)}
-              />
-
-              <button
-                disabled={!queryType}
-                onClick={async () => {
-                  const storedEmail = localStorage.getItem("email");
-                  const storedPhone = localStorage.getItem("phone");
-
-                  const res = await fetch("/api/support/query", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                      email: storedEmail || null,
-                      phone: storedPhone || null,
-                      type: queryType,
-                      message: queryMessage,
-                    }),
-                  });
-
-                  const data = await res.json();
-
-                  if (data.success) {
-                    setQuerySuccess("Your query has been submitted.");
-                  } else {
-                    setQuerySuccess(data.message || "Something went wrong.");
-                  }
-
-                  setQueryType("");
-                  setQueryMessage("");
-                }}
-                className={`mt-4 px-5 py-3 text-white rounded-xl ${
-                  !queryType ? "bg-gray-500 cursor-not-allowed" : "bg-[var(--accent)]"
-                }`}
-              >
-                Submit Query
-              </button>
-            </>
+            <QueryTab />
           )}
         </div>
       </section>
     </AuthGuard>
-  );
-}
-
-function WalletPayUI({ title, qr, onConfirm }: { title: string; qr: string; onConfirm: () => void }) {
-  return (
-    <div className="text-center">
-      <h3 className="text-lg font-semibold mb-4">{title}</h3>
-
-      <div className="bg-white w-52 h-52 mx-auto p-4 rounded-xl shadow">
-        <img src={qr} alt="QR Code" />
-      </div>
-
-      <button
-        onClick={onConfirm}
-        className="mt-5 w-full p-3 bg-[var(--accent)] text-black rounded-xl"
-      >
-        I Have Paid
-      </button>
-    </div>
   );
 }
