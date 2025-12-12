@@ -74,7 +74,9 @@ export default function GameBannerCarousel() {
         {banners.map((banner, i) => (
           <Link
             key={i}
-            href={banner.bannerLink || "/"}
+            // href={banner.bannerLink || "/"}
+                        href={ "/"}
+
             className={`absolute inset-0 transition-all duration-700 ease-out ${
               i === current ? "opacity-100" : "opacity-0 pointer-events-none"
             }`}

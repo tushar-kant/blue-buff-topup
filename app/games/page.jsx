@@ -9,14 +9,7 @@ export default function GamesPage() {
   const [category, setCategory] = useState([]);
   const [games, setGames] = useState([]);
 
-  // Define out-of-stock game names
-  const outOfStockGames = [
-    "PUBG Mobile",
-    "Genshin Impact",
-    "Honor Of Kings",
-    "TEST 1",
-  ];
-
+  const outOfStockGames = ["PUBG Mobile", "Genshin Impact", "Honor Of Kings", "TEST 1"];
   const isOutOfStock = (name) => outOfStockGames.includes(name);
 
   useEffect(() => {
@@ -29,18 +22,16 @@ export default function GamesPage() {
   }, []);
 
   return (
-    <section className="min-h-screen px-6 py-10 bg-[var(--background)] text-[var(--foreground)]">
+    <section className="min-h-screen px-4 py-8 bg-[var(--background)] text-[var(--foreground)]">
 
-      {/* ================= CATEGORY SECTION ================= */}
+      {/* ================= CATEGORY LIST ================= */}
       {category.map((cat, i) => (
-        <div key={i} className="max-w-6xl mx-auto mb-12">
+        <div key={i} className="max-w-6xl mx-auto mb-10">
 
-          {/* Category Title */}
-          <h2 className="text-2xl font-bold mb-4">{cat.categoryTitle}</h2>
+          <h2 className="text-xl font-bold mb-3 px-1">{cat.categoryTitle}</h2>
 
-          {/* Category Games (always 3 in one row) */}
-          <div className="grid grid-cols-3 gap-4">
-
+          {/* Mobile-first grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {cat.gameId.map((game, index) => {
               const disabled = isOutOfStock(game.gameName);
 
@@ -48,34 +39,35 @@ export default function GamesPage() {
                 <Link
                   key={index}
                   href={disabled ? "#" : `/games/${game.gameSlug}`}
-                  className={`bg-[var(--card)] border border-[var(--border)] rounded-xl p-3 shadow transition-all duration-300 
-                    ${disabled ? "opacity-40 pointer-events-none" : "hover:scale-105"}`}
+                  className={`relative rounded-xl bg-[var(--card)] border border-[var(--border)] overflow-hidden shadow-sm
+                    transition-all duration-200 p-3 flex flex-col 
+                    ${disabled ? "opacity-40 pointer-events-none" : "hover:-translate-y-1 hover:shadow-md"}`}
                 >
-                  <div className="w-full h-28 relative mb-3 rounded-lg overflow-hidden">
+                  {/* IMAGE */}
+                  <div className="w-full h-28 relative rounded-lg overflow-hidden mb-2">
                     <Image
-                      src={game.gameImageId.image || logo}
-                      fill
+                      src={game.gameImageId?.image || logo}
                       alt={game.gameName}
-                      className={`object-cover ${
-                        disabled ? "grayscale" : ""
-                      }`}
+                      fill
+                      className={`object-cover ${disabled ? "grayscale" : ""}`}
                     />
                   </div>
 
-                  <h3 className="font-semibold text-sm">{game.gameName}</h3>
+                  {/* NAME + REGION */}
+                  <h3 className="font-semibold text-sm leading-tight">{game.gameName}</h3>
                   <p className="text-xs text-[var(--muted)]">{game.gameFrom}</p>
 
                   {/* Out of Stock Badge */}
                   {disabled && (
-                    <span className="text-[10px] px-2 py-1 mt-2 inline-block rounded-full bg-red-600 text-white">
+                    <span className="absolute top-2 right-2 text-[9px] px-2 py-1 rounded-full bg-red-600 text-white shadow">
                       Out of Stock
                     </span>
                   )}
 
-                  {/* Tag (Only if available & not disabled) */}
+                  {/* Tag Badge */}
                   {!disabled && game.tagId && (
                     <span
-                      className="text-[10px] px-2 py-1 mt-2 inline-block rounded-full"
+                      className="text-[9px] px-2 py-1 mt-2 inline-block rounded-full w-fit"
                       style={{
                         background: game.tagId.tagBackground,
                         color: game.tagId.tagColor,
@@ -87,18 +79,15 @@ export default function GamesPage() {
                 </Link>
               );
             })}
-
           </div>
         </div>
       ))}
 
-      {/* ================= ALL GAMES SECTION ================= */}
-      <div className="max-w-6xl mx-auto">
+      {/* ================= ALL GAMES ================= */}
+      <div className="max-w-6xl mx-auto mb-10">
+        <h2 className="text-xl font-bold mb-3 px-1">All Games</h2>
 
-        <h2 className="text-2xl font-bold mb-4">All Games</h2>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
-
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {games.map((game, i) => {
             const disabled = isOutOfStock(game.gameName);
 
@@ -106,34 +95,35 @@ export default function GamesPage() {
               <Link
                 key={i}
                 href={disabled ? "#" : `/games/${game.gameSlug}`}
-                className={`bg-[var(--card)] border border-[var(--border)] rounded-xl p-3 shadow transition-all duration-300 
-                  ${disabled ? "opacity-40 pointer-events-none" : "hover:scale-105"}`}
+                className={`relative rounded-xl bg-[var(--card)] border border-[var(--border)] overflow-hidden shadow-sm
+                  transition-all duration-200 p-3 flex flex-col
+                  ${disabled ? "opacity-40 pointer-events-none" : "hover:-translate-y-1 hover:shadow-md"}`}
               >
-                <div className="w-full h-28 relative mb-3 rounded-lg overflow-hidden">
+                {/* IMAGE */}
+                <div className="w-full h-28 relative rounded-lg overflow-hidden mb-2">
                   <Image
-                    src={game.gameImageId.image || logo}
-                    fill
+                    src={game.gameImageId?.image || logo}
                     alt={game.gameName}
-                    className={`object-cover ${
-                      disabled ? "grayscale" : ""
-                    }`}
+                    fill
+                    className={`object-cover ${disabled ? "grayscale" : ""}`}
                   />
                 </div>
 
+                {/* NAME */}
                 <h3 className="font-semibold text-sm">{game.gameName}</h3>
                 <p className="text-xs text-[var(--muted)]">{game.gameFrom}</p>
 
-                {/* Out of Stock Label */}
+                {/* Out of Stock Badge */}
                 {disabled && (
-                  <span className="text-[10px] px-2 py-1 mt-2 inline-block rounded-full bg-red-600 text-white">
+                  <span className="absolute top-2 right-2 text-[9px] px-2 py-1 rounded-full bg-red-600 text-white shadow">
                     Out of Stock
                   </span>
                 )}
 
-                {/* Only show tag if available & not disabled */}
+                {/* Tag Badge */}
                 {!disabled && game.tagId && (
                   <span
-                    className="text-[10px] px-2 py-1 mt-2 inline-block rounded-full"
+                    className="text-[9px] px-2 py-1 mt-2 inline-block rounded-full w-fit"
                     style={{
                       background: game.tagId.tagBackground,
                       color: game.tagId.tagColor,
@@ -145,10 +135,8 @@ export default function GamesPage() {
               </Link>
             );
           })}
-
         </div>
       </div>
-
     </section>
   );
 }

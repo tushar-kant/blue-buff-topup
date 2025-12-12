@@ -52,6 +52,7 @@ const [orders, setOrders] = useState<OrderType[]>([]);
     const storedEmail = localStorage.getItem("email");
     const storedPhone = localStorage.getItem("phone");
     const storedWallet = localStorage.getItem("walletBalance");
+     const order = localStorage.getItem("order");
 
     setUserDetails({
       name: storedName || "Demo User",
@@ -60,6 +61,8 @@ const [orders, setOrders] = useState<OrderType[]>([]);
     });
 
     if (storedWallet) setWalletBalance(Number(storedWallet));
+        if (order) setTotalOrders(Number(order ) );
+
 
     // Fetch user's orders
     if (storedEmail || storedPhone) {
@@ -75,7 +78,7 @@ const [orders, setOrders] = useState<OrderType[]>([]);
         .then((data) => {
           if (data.success) {
             setOrders(data.orders);
-            setTotalOrders(data.orders.length);
+            // setTotalOrders(data.orders.length);
           }
         });
     }
