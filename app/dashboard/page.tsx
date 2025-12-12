@@ -28,8 +28,7 @@ export default function Dashboard() {
   const [paymentSuccess, setPaymentSuccess] = useState("");
 
   const [amount, setAmount] = useState("");
-const [amountError, setAmountError] = useState("");
-
+  const [amountError, setAmountError] = useState("");
 
   const [newPass, setNewPass] = useState("");
   const [passSuccess, setPassSuccess] = useState("");
@@ -40,66 +39,61 @@ const [amountError, setAmountError] = useState("");
   const [walletBalance, setWalletBalance] = useState(350);
   const [userDetails, setUserDetails] = useState({
     name: "Demo User",
-    email: "demo@example.com",
-    phone: "9999999999",
+    email: "",
+    phone: "",
   });
 
   // ================= LOAD USER + WALLET + ORDERS =================
-// ================= LOAD USER + WALLET + ORDERS =================
-useEffect(() => {
-  const storedEmail = localStorage.getItem("email");
-  const storedPhone = localStorage.getItem("phone");
+  useEffect(() => {
+    const storedEmail = localStorage.getItem("email");
+    const storedPhone = localStorage.getItem("phone");
 
-  if (!storedEmail && !storedPhone) return;
+    if (!storedEmail && !storedPhone) return;
 
-  const identifier = storedEmail || storedPhone;
+    const identifier = storedEmail || storedPhone;
 
-  // ---- FIRST: Fetch user data from DB ----
-  fetch("/api/auth/get-user", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ identifier }),
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.success) {
-        setUserDetails({
-          name: data.user.name,
-          email: data.user.email,
-          phone: data.user.phone,
-        });
+    // Fetch user data
+    fetch("/api/auth/get-user", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ identifier }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setUserDetails({
+            name: data.user.name,
+            email: data.user.email,
+            phone: data.user.phone,
+          });
 
-        setWalletBalance(data.user.wallet || 0);
-        setTotalOrders(data.user.order || 0);
-      }
-    });
+          setWalletBalance(data.user.wallet || 0);
+          setTotalOrders(data.user.order || 0);
+        }
+      });
 
-  // ---- SECOND: Fetch user orders ----
-  fetch("/api/order/user", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      email: storedEmail || null,
-      phone: storedPhone || null,
-    }),
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.success) {
-        setOrders(data.orders);
-      }
-    });
-
-}, []);
+    // Fetch orders
+    fetch("/api/order/user", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: storedEmail || null,
+        phone: storedPhone || null,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) setOrders(data.orders);
+      });
+  }, []);
 
   // ===================================================================
   return (
     <AuthGuard>
       <section className="px-6 py-10 min-h-screen bg-[var(--background)] text-[var(--foreground)]">
 
-        {/* --------------------- TOP CARDS --------------------- */}
+        {/* TOP CARDS */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-5 max-w-5xl mx-auto mb-10">
-
           {[
             { key: "orders", label: "Total Orders", value: totalOrders },
             { key: "wallet", label: "Wallet Balance", value: `₹${walletBalance}` },
@@ -109,8 +103,8 @@ useEffect(() => {
             <div
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`p-5 rounded-2xl cursor-pointer border transition-all duration-300 shadow-sm hover:shadow-lg 
-              ${activeTab === tab.key
+              className={`p-5 rounded-2xl cursor-pointer border transition-all duration-300 shadow-sm hover:shadow-lg ${
+                activeTab === tab.key
                   ? "border-[var(--accent)] bg-[var(--card)]"
                   : "border-[var(--border)] bg-[var(--card)]/60 hover:bg-[var(--card)]"
               }`}
@@ -121,24 +115,21 @@ useEffect(() => {
           ))}
         </div>
 
-        {/* --------------------- CONTENT WRAPPER --------------------- */}
+        {/* CONTENT WRAPPER */}
         <div className="max-w-4xl mx-auto bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 shadow-lg">
 
           {/* =============== ORDERS TAB =============== */}
           {activeTab === "orders" && (
             <>
-              <h2 className="text-2xl font-semibold mb-6 tracking-tight">Your Orders</h2>
+              <h2 className="text-2xl font-semibold mb-6">Your Orders</h2>
 
               {orders.length === 0 ? (
                 <p className="text-[var(--muted)]">No orders found.</p>
               ) : (
                 <div className="space-y-5">
                   {orders.map((o, i) => (
-                    <div
-                      key={i}
-                      className="p-5 bg-[var(--background)] border border-[var(--border)] rounded-2xl shadow transition hover:shadow-md"
-                    >
-                      <div className="flex justify-between items-center mb-2">
+                    <div key={i} className="p-5 bg-[var(--background)] border border-[var(--border)] rounded-2xl shadow">
+                      <div className="flex justify-between mb-2">
                         <p className="text-xs text-[var(--muted)]">
                           {new Date(o.createdAt).toLocaleString()}
                         </p>
@@ -176,129 +167,118 @@ useEffect(() => {
           )}
 
           {/* =============== WALLET TAB =============== */}
-         {activeTab === "wallet" && (
-  <>
-    <h2 className="text-2xl font-semibold mb-6">Wallet Balance</h2>
+          {activeTab === "wallet" && (
+            <>
+              <h2 className="text-2xl font-semibold mb-6">Wallet Balance</h2>
 
-    {paymentSuccess && (
-      <p className="text-green-500 font-medium mb-4">{paymentSuccess}</p>
-    )}
+              {paymentSuccess && <p className="text-green-500 mb-4">{paymentSuccess}</p>}
 
-    <p className="text-lg font-bold mb-4">Current Balance: ₹{walletBalance}</p>
-
-    <button
-      onClick={() => {
-        setShowAddBalance(true);
-        setSelectedMethod("");
-        setAmount("");
-        setAmountError("");
-      }}
-      className="bg-[var(--accent)] text-white font-semibold px-5 py-3 rounded-xl hover:opacity-90 transition"
-    >
-      Add Money
-    </button>
-
-    {/* POPUP */}
-    {showAddBalance && (
-      <div className="mt-6 p-6 border border-[var(--border)] bg-[var(--background)] rounded-2xl shadow-lg">
-
-        {/* ---- ENTER AMOUNT FIRST ---- */}
-        {!selectedMethod && (
-          <>
-            <h3 className="text-lg font-semibold mb-4">Enter Amount</h3>
-
-            <input
-              type="number"
-              placeholder="Minimum ₹100"
-              value={amount}
-              onChange={(e) => {
-                setAmount(e.target.value);
-                setAmountError("");
-              }}
-              className="w-full p-3 rounded-xl bg-[var(--background)] border border-[var(--border)] mb-2"
-            />
-
-            {amountError && (
-              <p className="text-red-500 text-sm mb-3">{amountError}</p>
-            )}
-
-            <button
-              onClick={() => {
-                if (!amount || Number(amount) < 100) {
-                  setAmountError("Minimum amount is ₹100");
-                  return;
-                }
-                setSelectedMethod("choose");
-              }}
-              className="w-full p-3 rounded-xl bg-[var(--accent)] text-white font-semibold hover:opacity-90 transition"
-            >
-              Continue
-            </button>
-          </>
-        )}
-
-        {/* ---- CHOOSE PAYMENT METHOD ---- */}
-        {selectedMethod === "choose" && (
-          <>
-            <h3 className="text-lg font-semibold mb-4">Choose Payment Method</h3>
-
-            <div className="space-y-3">
-              <button
-                onClick={() => setSelectedMethod("upi")}
-                className="w-full p-3 rounded-xl border border-[var(--accent)] text-[var(--accent)] font-semibold hover:bg-[var(--card)]/40 transition"
-              >
-                Pay with UPI
-              </button>
+              <p className="text-lg font-bold mb-4">Current Balance: ₹{walletBalance}</p>
 
               <button
-                onClick={() => setSelectedMethod("usdt")}
-                className="w-full p-3 rounded-xl border border-[var(--accent)] text-[var(--accent)] font-semibold hover:bg-[var(--card)]/40 transition"
+                onClick={() => {
+                  setShowAddBalance(true);
+                  setSelectedMethod("");
+                  setAmount("");
+                  setAmountError("");
+                }}
+                className="bg-[var(--accent)] text-white px-5 py-3 rounded-xl"
               >
-                Pay with USDT (TRC20)
+                Add Money
               </button>
-            </div>
-          </>
-        )}
 
-        {/* ---- UPI PAYMENT ---- */}
-        {selectedMethod === "upi" && (
-          <WalletPayUI
-            title="Scan UPI QR"
-            qr="/sample-qr.png"
-            onConfirm={() => {
-              const newBalance = walletBalance + Number(amount);
-              setWalletBalance(newBalance);
+              {showAddBalance && (
+                <div className="mt-6 p-6 bg-[var(--background)] border border-[var(--border)] rounded-2xl">
 
-              // update local storage temporarily
-              localStorage.setItem("walletBalance", String(newBalance));
+                  {/* ENTER AMOUNT */}
+                  {!selectedMethod && (
+                    <>
+                      <h3 className="text-lg font-semibold mb-4">Enter Amount</h3>
 
-              setPaymentSuccess(`₹${amount} added successfully!`);
-              setShowAddBalance(false);
-            }}
-          />
-        )}
+                      <input
+                        type="number"
+                        placeholder="Minimum ₹100"
+                        value={amount}
+                        onChange={(e) => {
+                          setAmount(e.target.value);
+                          setAmountError("");
+                        }}
+                        className="w-full p-3 mb-2 bg-[var(--background)] border border-[var(--border)] rounded-xl"
+                      />
 
-        {/* ---- USDT PAYMENT ---- */}
-        {selectedMethod === "usdt" && (
-          <WalletPayUI
-            title="Scan USDT Wallet"
-            qr="/sample-usdt-qr.png"
-            onConfirm={() => {
-              const newBalance = walletBalance + Number(amount);
-              setWalletBalance(newBalance);
+                      {amountError && <p className="text-red-500 text-sm mb-2">{amountError}</p>}
 
-              localStorage.setItem("walletBalance", String(newBalance));
+                      <button
+                        onClick={() => {
+                          if (!amount || Number(amount) < 100) {
+                            setAmountError("Minimum amount is ₹100");
+                            return;
+                          }
+                          setSelectedMethod("choose");
+                        }}
+                        className="w-full p-3 bg-[var(--accent)] text-white rounded-xl"
+                      >
+                        Continue
+                      </button>
+                    </>
+                  )}
 
-              setPaymentSuccess(`USDT payment confirmed! Amount: ₹${amount}`);
-              setShowAddBalance(false);
-            }}
-          />
-        )}
-      </div>
-    )}
-  </>
-)}
+                  {/* CHOOSE PAYMENT METHOD */}
+                  {selectedMethod === "choose" && (
+                    <>
+                      <h3 className="text-lg font-semibold mb-4">Choose Payment Method</h3>
 
+                      <div className="space-y-3">
+                        <button
+                          onClick={() => setSelectedMethod("upi")}
+                          className="w-full p-3 border border-[var(--accent)] rounded-xl text-[var(--accent)]"
+                        >
+                          Pay with UPI
+                        </button>
+
+                        <button
+                          onClick={() => setSelectedMethod("usdt")}
+                          className="w-full p-3 border border-[var(--accent)] rounded-xl text-[var(--accent)]"
+                        >
+                          Pay with USDT (TRC20)
+                        </button>
+                      </div>
+                    </>
+                  )}
+
+                  {/* UPI Payment */}
+                  {selectedMethod === "upi" && (
+                    <WalletPayUI
+                      title="Scan UPI QR"
+                      qr="/sample-qr.png"
+                      onConfirm={() => {
+                        const newBalance = walletBalance + Number(amount);
+                        setWalletBalance(newBalance);
+                        localStorage.setItem("walletBalance", String(newBalance));
+                        setPaymentSuccess(`₹${amount} added successfully!`);
+                        setShowAddBalance(false);
+                      }}
+                    />
+                  )}
+
+                  {/* USDT Payment */}
+                  {selectedMethod === "usdt" && (
+                    <WalletPayUI
+                      title="Scan USDT Wallet"
+                      qr="/sample-usdt-qr.png"
+                      onConfirm={() => {
+                        const newBalance = walletBalance + Number(amount);
+                        setWalletBalance(newBalance);
+                        localStorage.setItem("walletBalance", String(newBalance));
+                        setPaymentSuccess(`USDT payment confirmed! Amount: ₹${amount}`);
+                        setShowAddBalance(false);
+                      }}
+                    />
+                  )}
+                </div>
+              )}
+            </>
+          )}
 
           {/* =============== ACCOUNT TAB =============== */}
           {activeTab === "account" && (
@@ -311,12 +291,11 @@ useEffect(() => {
                 <p><strong>Phone:</strong> {userDetails.phone}</p>
               </div>
 
-              {/* Change Password */}
               <div className="mt-8">
                 <h3 className="font-semibold text-lg mb-3">Change Password</h3>
 
-                {passSuccess && <p className="text-green-500 text-sm mb-2">{passSuccess}</p>}
-                {passError && <p className="text-red-500 text-sm mb-2">{passError}</p>}
+                {passSuccess && <p className="text-green-500 text-sm">{passSuccess}</p>}
+                {passError && <p className="text-red-500 text-sm">{passError}</p>}
 
                 <input
                   type="password"
@@ -326,7 +305,7 @@ useEffect(() => {
                     setNewPass(e.target.value);
                     setPassError("");
                   }}
-                  className="w-full p-3 bg-[var(--background)] border border-[var(--border)] rounded-xl mb-4"
+                  className="w-full p-3 border border-[var(--border)] rounded-xl mb-3"
                 />
 
                 <button
@@ -357,7 +336,7 @@ useEffect(() => {
                     setPassSuccess("Password updated!");
                     setTimeout(() => setPassSuccess(""), 2000);
                   }}
-                  className="bg-[var(--accent)] text-white px-5 py-3 rounded-xl font-semibold transition hover:opacity-90"
+                  className="bg-[var(--accent)] text-white px-5 py-3 rounded-xl"
                 >
                   {loadingPass ? "Updating..." : "Update Password"}
                 </button>
@@ -385,7 +364,7 @@ useEffect(() => {
               </select>
 
               <textarea
-                className="w-full p-3 rounded-xl bg-[var(--background)] border border-[var(--border)] h-32"
+                className="w-full p-3 border border-[var(--border)] bg-[var(--background)] rounded-xl h-32"
                 placeholder="Write your message..."
                 value={queryMessage}
                 onChange={(e) => setQueryMessage(e.target.value)}
@@ -393,14 +372,35 @@ useEffect(() => {
 
               <button
                 disabled={!queryType}
-                onClick={() => {
-                  setQuerySuccess("Your query has been submitted.");
+                onClick={async () => {
+                  const storedEmail = localStorage.getItem("email");
+                  const storedPhone = localStorage.getItem("phone");
+
+                  const res = await fetch("/api/support/query", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      email: storedEmail || null,
+                      phone: storedPhone || null,
+                      type: queryType,
+                      message: queryMessage,
+                    }),
+                  });
+
+                  const data = await res.json();
+
+                  if (data.success) {
+                    setQuerySuccess("Your query has been submitted.");
+                  } else {
+                    setQuerySuccess(data.message || "Something went wrong.");
+                  }
+
                   setQueryType("");
                   setQueryMessage("");
                 }}
-                className={`mt-4 px-5 py-3 rounded-xl text-white font-semibold transition
-                  ${!queryType ? "bg-gray-600 cursor-not-allowed" : "bg-[var(--accent)] hover:opacity-90"}
-                `}
+                className={`mt-4 px-5 py-3 text-white rounded-xl ${
+                  !queryType ? "bg-gray-500 cursor-not-allowed" : "bg-[var(--accent)]"
+                }`}
               >
                 Submit Query
               </button>
@@ -412,15 +412,7 @@ useEffect(() => {
   );
 }
 
-function WalletPayUI({
-  title,
-  qr,
-  onConfirm,
-}: {
-  title: string;
-  qr: string;
-  onConfirm: () => void;
-}) {
+function WalletPayUI({ title, qr, onConfirm }: { title: string; qr: string; onConfirm: () => void }) {
   return (
     <div className="text-center">
       <h3 className="text-lg font-semibold mb-4">{title}</h3>
@@ -431,7 +423,7 @@ function WalletPayUI({
 
       <button
         onClick={onConfirm}
-        className="mt-5 w-full p-3 rounded-xl bg-[var(--accent)] text-black font-semibold hover:opacity-90 transition"
+        className="mt-5 w-full p-3 bg-[var(--accent)] text-black rounded-xl"
       >
         I Have Paid
       </button>
