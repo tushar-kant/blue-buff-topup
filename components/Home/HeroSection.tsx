@@ -11,6 +11,14 @@ export default function HeroSection() {
   const pathname = usePathname();
 
   const isLive = pathname.startsWith("/anime-live");
+  const checkBalance = async () => {
+  const res = await fetch("/api/game/balance");
+  const data = await res.json();
+  console.log("FINAL BALANCE:", data);
+};
+
+checkBalance();
+
 
   return (
     <>

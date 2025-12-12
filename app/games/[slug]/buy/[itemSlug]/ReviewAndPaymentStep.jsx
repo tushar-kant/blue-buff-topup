@@ -36,40 +36,58 @@ export default function ReviewAndPaymentStep({
     setUpiQR(qr);
   };
 
-  // Create order
-  const createOrder = async () => {
-    const payload = {
-      gameSlug: slug,
-      itemSlug,
-      itemName,
-      playerId: reviewData.playerId,
-      zoneId: reviewData.zoneId,
-      paymentMethod,
-      price: totalPrice,
-      email: userEmail || null,
-      phone: userPhone || null,
-    };
-
-    const res = await fetch("/api/order/create", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    return res.json();
-  };
 
   // Handle proceed to payment
-  const handleProceed = async () => {
-    const result = await createOrder();
+const handleProceed = async () => {
+  if (!paymentMethod) {
+    alert("Please select a payment method");
+    return;
+  }
 
-    if (!result.success) {
-      alert("Order failed: " + result.message);
-      return;
-    }
+  const userId = localStorage.getItem("userId");
+  const storedPhone = userPhone || localStorage.getItem("phone");
 
-    setStep(3); // Go to payment screen
+  if (!storedPhone) {
+    alert("Phone number missing. Please log in again.");
+    return;
+  }
+
+  // Payload to backend
+  const orderPayload = {
+    gameSlug: slug,
+    itemSlug,
+    itemName,
+    playerId: reviewData.playerId,
+    zoneId: reviewData.zoneId,
+    paymentMethod,
+    price: totalPrice,
+    email: userEmail || null,
+    phone: storedPhone,
+    userId: userId || null,    // REQUIRED
+    currency: "INR",           // your backend supports this now
   };
+
+  const res = await fetch("/api/order/create-gateway-order", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(orderPayload),
+  });
+
+  const data = await res.json();
+
+  if (!data.success) {
+    alert("Order failed: " + data.message);
+    return;
+  }
+
+  // Save the orderId for verification step
+  localStorage.setItem("pending_topup_order", data.orderId);
+
+  // Redirect user to real payment URL
+  window.location.href = data.paymentUrl;
+};
+
+
 
   return (
     <div className="space-y-6">
@@ -131,6 +149,7 @@ export default function ReviewAndPaymentStep({
             
             {/* Wallet Button */}
             <button
+            disabled
               onClick={() => {
                 if (walletBalance < totalPrice) return;
                 setPaymentMethod("wallet");

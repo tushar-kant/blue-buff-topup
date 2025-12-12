@@ -2,27 +2,25 @@ import mongoose from "mongoose";
 
 const OrderSchema = new mongoose.Schema(
   {
-    userId: { type: String }, // optional: store user if logged in
-
+    orderId: { type: String,required: true, unique: true },
     gameSlug: String,
     itemSlug: String,
     itemName: String,
     playerId: String,
     zoneId: String,
-
     paymentMethod: String,
     price: Number,
-
-    email: { type: String, sparse: true },
-    phone: { type: String, sparse: true },
-
+    email: String,
+    phone: String,
     status: {
       type: String,
-      enum: ["pending", "success", "failed"],
-      default: "pending",
+      enum: [
+        "pending", "success", "failed",    // lowercase
+        "PENDING", "SUCCESS", "FAILED"     // uppercase (optional)
+      ],
+      default: "pending"
     },
-
-    expiresAt: { type: Date }, // auto-mark as failed after 30 min
+    expiresAt: Date,
   },
   { timestamps: true }
 );
