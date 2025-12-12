@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from "react";
 import AuthGuard from "../../components/AuthGuard";
+
 type OrderType = {
   gameSlug: string;
   itemSlug: string;
-  itemName:string;
+  itemName: string;
   playerId: string;
   zoneId: string;
   paymentMethod: string;
@@ -17,27 +18,20 @@ type OrderType = {
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("orders");
 
-  // Orders
-const [orders, setOrders] = useState<OrderType[]>([]);
-
-
-  // Query system
+  const [orders, setOrders] = useState<OrderType[]>([]);
   const [queryType, setQueryType] = useState("");
   const [queryMessage, setQueryMessage] = useState("");
   const [querySuccess, setQuerySuccess] = useState("");
 
-  // Wallet Recharge
   const [showAddBalance, setShowAddBalance] = useState(false);
   const [selectedMethod, setSelectedMethod] = useState("");
   const [paymentSuccess, setPaymentSuccess] = useState("");
 
-  // Password change states
   const [newPass, setNewPass] = useState("");
   const [passSuccess, setPassSuccess] = useState("");
   const [passError, setPassError] = useState("");
   const [loadingPass, setLoadingPass] = useState(false);
 
-  // User + Wallet
   const [totalOrders, setTotalOrders] = useState(0);
   const [walletBalance, setWalletBalance] = useState(350);
   const [userDetails, setUserDetails] = useState({
@@ -52,7 +46,7 @@ const [orders, setOrders] = useState<OrderType[]>([]);
     const storedEmail = localStorage.getItem("email");
     const storedPhone = localStorage.getItem("phone");
     const storedWallet = localStorage.getItem("walletBalance");
-     const order = localStorage.getItem("order");
+    const order = localStorage.getItem("order");
 
     setUserDetails({
       name: storedName || "Demo User",
@@ -61,10 +55,8 @@ const [orders, setOrders] = useState<OrderType[]>([]);
     });
 
     if (storedWallet) setWalletBalance(Number(storedWallet));
-        if (order) setTotalOrders(Number(order ) );
+    if (order) setTotalOrders(Number(order));
 
-
-    // Fetch user's orders
     if (storedEmail || storedPhone) {
       fetch("/api/order/user", {
         method: "POST",
@@ -78,249 +70,190 @@ const [orders, setOrders] = useState<OrderType[]>([]);
         .then((data) => {
           if (data.success) {
             setOrders(data.orders);
-            // setTotalOrders(data.orders.length);
           }
         });
     }
   }, []);
 
+  // ===================================================================
   return (
     <AuthGuard>
       <section className="px-6 py-10 min-h-screen bg-[var(--background)] text-[var(--foreground)]">
 
-        {/* ------------------ TOP CARDS ------------------ */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
+        {/* --------------------- TOP CARDS --------------------- */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-5 max-w-5xl mx-auto mb-10">
 
-          {/* Orders */}
-          <div
-            onClick={() => setActiveTab("orders")}
-            className={`p-5 rounded-xl cursor-pointer shadow border 
-            ${activeTab === "orders" ? "border-[var(--accent)] bg-[var(--card)]" : "border-[var(--border)] bg-[var(--card)]/60"}`}
-          >
-            <p className="text-sm text-[var(--muted)]">Total Orders</p>
-            <h2 className="text-2xl font-bold mt-1">{totalOrders}</h2>
-          </div>
-
-          {/* Wallet */}
-          <div
-            onClick={() => setActiveTab("wallet")}
-            className={`p-5 rounded-xl cursor-pointer shadow border
-            ${activeTab === "wallet" ? "border-[var(--accent)] bg-[var(--card)]" : "border-[var(--border)] bg-[var(--card)]/60"}`}
-          >
-            <p className="text-sm text-[var(--muted)]">Wallet Balance</p>
-            <h2 className="text-2xl font-bold mt-1">₹{walletBalance}</h2>
-          </div>
-
-          {/* Account */}
-          <div
-            onClick={() => setActiveTab("account")}
-            className={`p-5 rounded-xl cursor-pointer shadow border
-            ${activeTab === "account" ? "border-[var(--accent)] bg-[var(--card)]" : "border-[var(--border)] bg-[var(--card)]/60"}`}
-          >
-            <p className="text-sm text-[var(--muted)]">Account</p>
-            <h2 className="text-xl font-bold mt-1">Manage</h2>
-          </div>
-
-          {/* Query */}
-          <div
-            onClick={() => setActiveTab("query")}
-            className={`p-5 rounded-xl cursor-pointer shadow border
-            ${activeTab === "query" ? "border-[var(--accent)] bg-[var(--card)]" : "border-[var(--border)] bg-[var(--card)]/60"}`}
-          >
-            <p className="text-sm text-[var(--muted)]">Queries</p>
-            <h2 className="text-xl font-bold mt-1">Support</h2>
-          </div>
-
+          {[
+            { key: "orders", label: "Total Orders", value: totalOrders },
+            { key: "wallet", label: "Wallet Balance", value: `₹${walletBalance}` },
+            { key: "account", label: "Account", value: "Manage" },
+            { key: "query", label: "Queries", value: "Support" },
+          ].map((tab) => (
+            <div
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`p-5 rounded-2xl cursor-pointer border transition-all duration-300 shadow-sm hover:shadow-lg 
+              ${activeTab === tab.key
+                  ? "border-[var(--accent)] bg-[var(--card)]"
+                  : "border-[var(--border)] bg-[var(--card)]/60 hover:bg-[var(--card)]"
+              }`}
+            >
+              <p className="text-sm text-[var(--muted)]">{tab.label}</p>
+              <h2 className="text-2xl font-bold mt-1">{tab.value}</h2>
+            </div>
+          ))}
         </div>
 
-        {/* ------------------ CONTENT ------------------ */}
-        <div className="mt-10 max-w-4xl mx-auto bg-[var(--card)] border border-[var(--border)] rounded-xl p-6 shadow">
+        {/* --------------------- CONTENT WRAPPER --------------------- */}
+        <div className="max-w-4xl mx-auto bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 shadow-lg">
 
-          {/* ------------------ ORDERS TAB ------------------ */}
+          {/* =============== ORDERS TAB =============== */}
           {activeTab === "orders" && (
             <>
-              <h2 className="text-xl font-semibold mb-4">Your Orders</h2>
+              <h2 className="text-2xl font-semibold mb-6 tracking-tight">Your Orders</h2>
 
               {orders.length === 0 ? (
                 <p className="text-[var(--muted)]">No orders found.</p>
               ) : (
-                <div className="space-y-4">
-             {orders.map((o, i) => (
-  <div
-    key={i}
-    className="p-4 bg-[var(--background)] border border-[var(--border)] rounded-lg shadow space-y-3"
-  >
-    {/* ---------- ROW 1 ---------- */}
-    <div className="flex justify-between items-center">
-      <p className="text-xs text-[var(--muted)]">
-        {new Date(o.createdAt).toLocaleString()}
-      </p>
+                <div className="space-y-5">
+                  {orders.map((o, i) => (
+                    <div
+                      key={i}
+                      className="p-5 bg-[var(--background)] border border-[var(--border)] rounded-2xl shadow transition hover:shadow-md"
+                    >
+                      <div className="flex justify-between items-center mb-2">
+                        <p className="text-xs text-[var(--muted)]">
+                          {new Date(o.createdAt).toLocaleString()}
+                        </p>
+                        <span
+                          className={`font-semibold ${
+                            o.status === "success"
+                              ? "text-green-500"
+                              : o.status === "failed"
+                              ? "text-red-500"
+                              : "text-yellow-500"
+                          }`}
+                        >
+                          {o.status.toUpperCase()}
+                        </span>
+                      </div>
 
-      <span
-        className={`font-semibold ${
-          o.status === "success"
-            ? "text-green-500"
-            : o.status === "failed"
-            ? "text-red-500"
-            : "text-yellow-500"
-        }`}
-      >
-        {o.status.toUpperCase()}
-      </span>
-    </div>
+                      <div className="flex justify-between text-sm">
+                        <p><strong>Player ID:</strong> {o.playerId}</p>
+                        <p><strong>Zone ID:</strong> {o.zoneId}</p>
+                      </div>
 
-    {/* ---------- ROW 2 ---------- */}
-    <div className="flex justify-between">
-      <p>
-        <strong>Player ID:</strong> {o.playerId}
-      </p>
-      <p>
-        <strong>Zone ID:</strong> {o.zoneId}
-      </p>
-    </div>
+                      <div className="flex justify-between mt-2 text-sm">
+                        <p><strong>Payment:</strong> {o.paymentMethod}</p>
+                        <p><strong>Price:</strong> ₹{o.price}</p>
+                      </div>
 
-    {/* ---------- ROW 3 ---------- */}
-    <div className="flex justify-between">
-      <p>
-        <strong>Payment:</strong> {o.paymentMethod}
-      </p>
-      <p>
-        <strong>Price:</strong> ₹{o.price}
-      </p>
-    </div>
-
-    {/* ---------- GAME & ITEM (Optional) ---------- */}
-    <div className="mt-2 text-sm text-[var(--muted)]">
-      {o.gameSlug} — {o.itemSlug} -{o?.itemName}
-    </div>
-  </div>
-))}
-
+                      <p className="mt-3 text-sm text-[var(--muted)]">
+                        {o.gameSlug} — {o.itemSlug} — {o.itemName}
+                      </p>
+                    </div>
+                  ))}
                 </div>
               )}
             </>
           )}
 
-          {/* ------------------ WALLET TAB ------------------ */}
+          {/* =============== WALLET TAB =============== */}
           {activeTab === "wallet" && (
             <>
-              <h2 className="text-xl font-semibold mb-4">Wallet Balance</h2>
+              <h2 className="text-2xl font-semibold mb-6">Wallet Balance</h2>
 
               {paymentSuccess && (
                 <p className="text-green-500 font-medium mb-4">{paymentSuccess}</p>
               )}
 
-              <p className="text-lg font-bold mb-3">Current Balance: ₹{walletBalance}</p>
+              <p className="text-lg font-bold mb-4">Current Balance: ₹{walletBalance}</p>
 
               <button
                 onClick={() => {
                   setShowAddBalance(true);
                   setSelectedMethod("");
-                  setPaymentSuccess("");
                 }}
-                className="bg-[var(--accent)] text-white px-4 py-2 rounded-lg hover:opacity-90"
+                className="bg-[var(--accent)] text-white font-semibold px-5 py-3 rounded-xl hover:opacity-90 transition"
               >
                 Add Money
               </button>
 
-              {/* WALLET POPUP */}
+              {/* POPUP */}
               {showAddBalance && (
-                <div className="mt-6 p-5 border border-[var(--border)] bg-[var(--background)] rounded-xl shadow">
+                <div className="mt-6 p-6 border border-[var(--border)] bg-[var(--background)] rounded-2xl shadow-lg">
 
                   {!selectedMethod && (
                     <>
-                      <h3 className="text-lg font-semibold mb-3">Choose Payment Method</h3>
+                      <h3 className="text-lg font-semibold mb-4">Choose Payment Method</h3>
 
-                      <button
-                        onClick={() => setSelectedMethod("upi")}
-                        className="w-full mb-3 p-3 rounded-lg border border-[var(--accent)] text-[var(--accent)] font-semibold"
-                      >
-                        Pay with UPI
-                      </button>
+                      <div className="space-y-3">
+                        <button
+                          onClick={() => setSelectedMethod("upi")}
+                          className="w-full p-3 rounded-xl border border-[var(--accent)] text-[var(--accent)] font-semibold transition hover:bg-[var(--card)]/40"
+                        >
+                          Pay with UPI
+                        </button>
 
-                      <button
-                        onClick={() => setSelectedMethod("usdt")}
-                        className="w-full p-3 rounded-lg border border-[var(--accent)] text-[var(--accent)] font-semibold"
-                      >
-                        Pay with USDT (TRC20)
-                      </button>
+                        <button
+                          onClick={() => setSelectedMethod("usdt")}
+                          className="w-full p-3 rounded-xl border border-[var(--accent)] text-[var(--accent)] font-semibold transition hover:bg-[var(--card)]/40"
+                        >
+                          Pay with USDT (TRC20)
+                        </button>
+                      </div>
                     </>
                   )}
 
-                  {/* UPI METHOD */}
                   {selectedMethod === "upi" && (
-                    <div className="text-center">
-                      <h3 className="text-lg font-semibold mb-3">Scan UPI QR</h3>
-
-                      <div className="bg-white w-48 h-48 mx-auto p-3 rounded-lg shadow">
-                        <img src="/sample-qr.png" alt="UPI QR" />
-                      </div>
-
-                      <button
-                        onClick={() => {
-                          const newBalance = walletBalance + 100;
-                          setWalletBalance(newBalance);
-                          localStorage.setItem("walletBalance", newBalance.toString());
-                          setPaymentSuccess("₹100 added successfully!");
-                          setShowAddBalance(false);
-                        }}
-                        className="mt-4 w-full p-3 rounded-lg bg-[var(--accent)] text-black font-semibold"
-                      >
-                        I Have Paid
-                      </button>
-                    </div>
+                    <WalletPayUI
+                      title="Scan UPI QR"
+                      qr="/sample-qr.png"
+                      onConfirm={() => {
+                        const newBalance = walletBalance + 100;
+                        setWalletBalance(newBalance);
+                        localStorage.setItem("walletBalance", String(newBalance));
+                        setPaymentSuccess("₹100 added successfully!");
+                        setShowAddBalance(false);
+                      }}
+                    />
                   )}
 
-                  {/* USDT METHOD */}
                   {selectedMethod === "usdt" && (
-                    <div className="text-center">
-                      <h3 className="text-lg font-semibold mb-3">Scan USDT</h3>
-
-                      <div className="bg-white w-48 h-48 mx-auto p-3 rounded-lg shadow">
-                        <img src="/sample-usdt-qr.png" alt="USDT QR" />
-                      </div>
-
-                      <button
-                        onClick={() => {
-                          const newBalance = walletBalance + 100;
-                          setWalletBalance(newBalance);
-                          localStorage.setItem("walletBalance", newBalance.toString());
-                          setPaymentSuccess("USDT payment confirmed!");
-                          setShowAddBalance(false);
-                        }}
-                        className="mt-4 w-full p-3 rounded-lg bg-[var(--accent)] text-black font-semibold"
-                      >
-                        I Have Paid
-                      </button>
-                    </div>
+                    <WalletPayUI
+                      title="Scan USDT Wallet"
+                      qr="/sample-usdt-qr.png"
+                      onConfirm={() => {
+                        const newBalance = walletBalance + 100;
+                        setWalletBalance(newBalance);
+                        localStorage.setItem("walletBalance", String(newBalance));
+                        setPaymentSuccess("USDT payment confirmed!");
+                        setShowAddBalance(false);
+                      }}
+                    />
                   )}
                 </div>
               )}
             </>
           )}
 
-          {/* ------------------ ACCOUNT TAB ------------------ */}
+          {/* =============== ACCOUNT TAB =============== */}
           {activeTab === "account" && (
             <>
-              <h2 className="text-xl font-semibold mb-4">Account Details</h2>
+              <h2 className="text-2xl font-semibold mb-6">Account Details</h2>
 
-              <div className="space-y-3">
+              <div className="space-y-2 text-lg">
                 <p><strong>Name:</strong> {userDetails.name}</p>
-                <p><strong>Email:</strong> {userDetails.email || "Not Provided"}</p>
-                <p><strong>Phone:</strong> {userDetails.phone || "Not Provided"}</p>
+                <p><strong>Email:</strong> {userDetails.email}</p>
+                <p><strong>Phone:</strong> {userDetails.phone}</p>
               </div>
 
               {/* Change Password */}
-              <div className="mt-6">
-                <h3 className="font-semibold mb-2">Change Password</h3>
+              <div className="mt-8">
+                <h3 className="font-semibold text-lg mb-3">Change Password</h3>
 
-                {passSuccess && (
-                  <p className="text-green-500 text-sm mb-3">{passSuccess}</p>
-                )}
-
-                {passError && (
-                  <p className="text-red-500 text-sm mb-3">{passError}</p>
-                )}
+                {passSuccess && <p className="text-green-500 text-sm mb-2">{passSuccess}</p>}
+                {passError && <p className="text-red-500 text-sm mb-2">{passError}</p>}
 
                 <input
                   type="password"
@@ -329,12 +262,12 @@ const [orders, setOrders] = useState<OrderType[]>([]);
                   onChange={(e) => {
                     setNewPass(e.target.value);
                     setPassError("");
-                    setPassSuccess("");
                   }}
-                  className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)] mb-3"
+                  className="w-full p-3 bg-[var(--background)] border border-[var(--border)] rounded-xl mb-4"
                 />
 
                 <button
+                  disabled={loadingPass}
                   onClick={async () => {
                     if (newPass.length < 6) {
                       setPassError("Minimum 6 characters required");
@@ -355,17 +288,13 @@ const [orders, setOrders] = useState<OrderType[]>([]);
                     const data = await res.json();
                     setLoadingPass(false);
 
-                    if (!data.success) {
-                      setPassError(data.message);
-                      return;
-                    }
+                    if (!data.success) return setPassError(data.message);
 
                     setNewPass("");
-                    setPassSuccess("Password updated successfully!");
+                    setPassSuccess("Password updated!");
                     setTimeout(() => setPassSuccess(""), 2000);
                   }}
-                  className="bg-[var(--accent)] text-white px-4 py-2 rounded-lg"
-                  disabled={loadingPass}
+                  className="bg-[var(--accent)] text-white px-5 py-3 rounded-xl font-semibold transition hover:opacity-90"
                 >
                   {loadingPass ? "Updating..." : "Update Password"}
                 </button>
@@ -373,22 +302,17 @@ const [orders, setOrders] = useState<OrderType[]>([]);
             </>
           )}
 
-          {/* ------------------ QUERY TAB ------------------ */}
+          {/* =============== QUERY TAB =============== */}
           {activeTab === "query" && (
             <>
-              <h2 className="text-xl font-semibold mb-4">Submit a Query</h2>
+              <h2 className="text-2xl font-semibold mb-6">Submit a Query</h2>
 
-              {querySuccess && (
-                <p className="text-green-500 font-medium mb-4">{querySuccess}</p>
-              )}
+              {querySuccess && <p className="text-green-500 mb-3">{querySuccess}</p>}
 
               <select
-                className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)] mb-4"
                 value={queryType}
-                onChange={(e) => {
-                  setQueryType(e.target.value);
-                  setQuerySuccess("");
-                }}
+                onChange={(e) => setQueryType(e.target.value)}
+                className="w-full p-3 rounded-xl bg-[var(--background)] border border-[var(--border)] mb-4"
               >
                 <option value="">Select Query Type</option>
                 <option value="Order Issue">Order Issue</option>
@@ -398,13 +322,10 @@ const [orders, setOrders] = useState<OrderType[]>([]);
               </select>
 
               <textarea
-                className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)] h-32"
+                className="w-full p-3 rounded-xl bg-[var(--background)] border border-[var(--border)] h-32"
                 placeholder="Write your message..."
                 value={queryMessage}
-                onChange={(e) => {
-                  setQueryMessage(e.target.value);
-                  setQuerySuccess("");
-                }}
+                onChange={(e) => setQueryMessage(e.target.value)}
               />
 
               <button
@@ -414,20 +335,43 @@ const [orders, setOrders] = useState<OrderType[]>([]);
                   setQueryType("");
                   setQueryMessage("");
                 }}
-                className={`mt-4 px-4 py-2 rounded-lg text-white font-semibold ${
-                  !queryType
-                    ? "bg-gray-500 cursor-not-allowed"
-                    : "bg-[var(--accent)] hover:opacity-90"
-                }`}
+                className={`mt-4 px-5 py-3 rounded-xl text-white font-semibold transition
+                  ${!queryType ? "bg-gray-600 cursor-not-allowed" : "bg-[var(--accent)] hover:opacity-90"}
+                `}
               >
                 Submit Query
               </button>
             </>
           )}
-
         </div>
-
       </section>
     </AuthGuard>
+  );
+}
+
+function WalletPayUI({
+  title,
+  qr,
+  onConfirm,
+}: {
+  title: string;
+  qr: string;
+  onConfirm: () => void;
+}) {
+  return (
+    <div className="text-center">
+      <h3 className="text-lg font-semibold mb-4">{title}</h3>
+
+      <div className="bg-white w-52 h-52 mx-auto p-4 rounded-xl shadow">
+        <img src={qr} alt="QR Code" />
+      </div>
+
+      <button
+        onClick={onConfirm}
+        className="mt-5 w-full p-3 rounded-xl bg-[var(--accent)] text-black font-semibold hover:opacity-90 transition"
+      >
+        I Have Paid
+      </button>
+    </div>
   );
 }

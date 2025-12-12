@@ -5,15 +5,6 @@ import { useState } from "react";
 export default function AuthPage() {
   const [tab, setTab] = useState("login");
 
-  // Dummy login credentials
-  const dummyUser = {
-    email: "test@example.com",
-    phone: "9999999999",
-    password: "123456",
-    name: "Demo User",
-    wallet: 150,
-  };
-
   const [loginData, setLoginData] = useState({ user: "", password: "" });
   const [regData, setRegData] = useState({
     name: "",
@@ -25,59 +16,100 @@ export default function AuthPage() {
   const [errors, setErrors] = useState({});
   const [success, setSuccess] = useState("");
 
-  // Validation helpers
-  const validateEmail = (email) => /\S+@\S+\.\S+/.test(email);
-  const validatePhone = (phone) => /^[0-9]{10}$/.test(phone);
-  const validatePassword = (pass) => pass.length >= 6;
+  // ---------- VALIDATION HELPERS ----------
+  const isGmail = (email) => /^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(email);
+  const isPhone = (phone) => /^[0-9]{10}$/.test(phone);
+  const minLen = (txt, min) => txt.length >= min;
+  const maxLen = (txt, max) => txt.length <= max;
 
-  // ------------------ LOGIN ------------------
-const handleLogin = async () => {
-  const res = await fetch("/api/auth/login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(loginData),
-  });
+  // ======================================================
+  // ---------------------- LOGIN -------------------------
+  // ======================================================
+  const handleLogin = async () => {
+    let errs = {};
 
-  const data = await res.json();
+    if (!loginData.user.trim()) errs.user = "Email or Phone is required";
+    if (!loginData.password.trim()) errs.password = "Password is required";
 
-  if (!data.success) {
-    setErrors({ user: data.message });
-    return;
-  }
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
+      return;
+    }
 
-  // Save to localStorage
-  localStorage.setItem("isLoggedIn", "true");
-  localStorage.setItem("userName", data.user.name);
-  localStorage.setItem("walletBalance", data.user.wallet);
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(loginData),
+    });
+
+    const data = await res.json();
+
+    if (!data.success) {
+      setErrors({ user: data.message });
+      return;
+    }
+
+    // Save to localStorage
+    localStorage.setItem("isLoggedIn", "true");
+    localStorage.setItem("userName", data.user.name);
+    localStorage.setItem("walletBalance", data.user.wallet);
     localStorage.setItem("order", data.user.order);
-  localStorage.setItem("email", data.user.email);
-  localStorage.setItem("phone", data.user.phone);
-  localStorage.setItem("userId", data.user.userId);
+    localStorage.setItem("email", data.user.email);
+    localStorage.setItem("phone", data.user.phone);
+    localStorage.setItem("userId", data.user.userId);
 
-  setSuccess("Login successful! Redirecting...");
-  setTimeout(() => window.location.href = "/", 1000);
-};
+    setSuccess("Login successful! Redirecting...");
+    setTimeout(() => (window.location.href = "/"), 1000);
+  };
 
+  // ======================================================
+  // -------------------- REGISTER ------------------------
+  // ======================================================
+  const handleRegister = async () => {
+    let errs = {};
 
-  // ------------------ REGISTER ------------------
-const handleRegister = async () => {
-  const res = await fetch("/api/auth/register", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(regData),
-  });
+    // NAME VALIDATION
+    if (!regData.name.trim()) errs.name = "Name is required";
+    else if (!minLen(regData.name, 3)) errs.name = "Minimum 3 characters";
+    else if (!maxLen(regData.name, 15)) errs.name = "Maximum 15 characters";
 
-  const data = await res.json();
+    // EMAIL VALIDATION (GMAIL ONLY)
+    if (!regData.email.trim()) errs.email = "Email is required";
+    else if (!isGmail(regData.email))
+      errs.email = "Email must be a valid Gmail (example@gmail.com)";
 
-  if (!data.success) {
-    setErrors({ email: data.message });
-    return;
-  }
+    // PHONE VALIDATION
+    if (!regData.phone.trim()) errs.phone = "Phone number is required";
+    else if (!isPhone(regData.phone))
+      errs.phone = "Phone number must be exactly 10 digits";
 
-  setSuccess("Account created! Please log in.");
-  setTab("login");
-};
+    // PASSWORD VALIDATION
+    if (!regData.password.trim()) errs.password = "Password is required";
+    else if (!minLen(regData.password, 6))
+      errs.password = "Password must be at least 6 characters long";
 
+    // If errors exist → stop
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
+      return;
+    }
+
+    const res = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(regData),
+    });
+
+    const data = await res.json();
+
+    if (!data.success) {
+      setErrors({ email: data.message });
+      return;
+    }
+
+    setSuccess("Account created! Please log in.");
+    setTab("login");
+  };
 
   return (
     <section className="min-h-screen flex items-center justify-center bg-[var(--background)] p-6 text-[var(--foreground)]">
@@ -120,7 +152,7 @@ const handleRegister = async () => {
           <p className="text-green-500 text-center mb-4 font-medium">{success}</p>
         )}
 
-        {/* ---------- LOGIN UI ---------- */}
+        {/* ----------------------- LOGIN UI ----------------------- */}
         {tab === "login" && (
           <div className="space-y-4">
 
@@ -129,15 +161,13 @@ const handleRegister = async () => {
               <input
                 type="text"
                 placeholder="Email or Phone"
-                className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)] focus:ring-2 ring-[var(--accent)] outline-none"
+                className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)]"
                 value={loginData.user}
                 onChange={(e) =>
                   setLoginData({ ...loginData, user: e.target.value })
                 }
               />
-              {errors.user && (
-                <p className="text-red-500 text-sm mt-1">{errors.user}</p>
-              )}
+              {errors.user && <p className="text-red-500 text-sm mt-1">{errors.user}</p>}
             </div>
 
             {/* Password */}
@@ -145,7 +175,7 @@ const handleRegister = async () => {
               <input
                 type="password"
                 placeholder="Password"
-                className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)] focus:ring-2 ring-[var(--accent)] outline-none"
+                className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)]"
                 value={loginData.password}
                 onChange={(e) =>
                   setLoginData({ ...loginData, password: e.target.value })
@@ -159,14 +189,14 @@ const handleRegister = async () => {
             {/* Submit */}
             <button
               onClick={handleLogin}
-              className="w-full py-3 rounded-lg bg-[var(--accent)] text-white font-semibold hover:opacity-90 transition"
+              className="w-full py-3 rounded-lg bg-[var(--accent)] text-white font-semibold"
             >
               Login
             </button>
           </div>
         )}
 
-        {/* ---------- REGISTER UI ---------- */}
+        {/* ----------------------- REGISTER UI ----------------------- */}
         {tab === "register" && (
           <div className="space-y-4">
 
@@ -175,7 +205,7 @@ const handleRegister = async () => {
               <input
                 type="text"
                 placeholder="Full Name"
-                className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)] focus:ring-2 ring-[var(--accent)] outline-none"
+                className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)]"
                 value={regData.name}
                 onChange={(e) =>
                   setRegData({ ...regData, name: e.target.value })
@@ -190,8 +220,8 @@ const handleRegister = async () => {
             <div>
               <input
                 type="email"
-                placeholder="Email"
-                className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)] focus:ring-2 ring-[var(--accent)] outline-none"
+                placeholder="Gmail Address"
+                className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)]"
                 value={regData.email}
                 onChange={(e) =>
                   setRegData({ ...regData, email: e.target.value })
@@ -207,7 +237,8 @@ const handleRegister = async () => {
               <input
                 type="text"
                 placeholder="Phone Number"
-                className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)] focus:ring-2 ring-[var(--accent)] outline-none"
+                maxLength={10}
+                className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)]"
                 value={regData.phone}
                 onChange={(e) =>
                   setRegData({ ...regData, phone: e.target.value })
@@ -222,8 +253,8 @@ const handleRegister = async () => {
             <div>
               <input
                 type="password"
-                placeholder="Password"
-                className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)] focus:ring-2 ring-[var(--accent)] outline-none"
+                placeholder="Password (min 6 characters)"
+                className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)]"
                 value={regData.password}
                 onChange={(e) =>
                   setRegData({ ...regData, password: e.target.value })
@@ -234,10 +265,10 @@ const handleRegister = async () => {
               )}
             </div>
 
-            {/* Register Button */}
+            {/* Register */}
             <button
               onClick={handleRegister}
-              className="w-full py-3 rounded-lg bg-[var(--accent)] text-white font-semibold hover:opacity-90 transition"
+              className="w-full py-3 rounded-lg bg-[var(--accent)] text-white font-semibold"
             >
               Create Account
             </button>
