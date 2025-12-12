@@ -54,40 +54,76 @@ export default function AccountTab({ userDetails }: AccountTabProps) {
   };
 
   return (
-    <>
-      <h2 className="text-2xl font-semibold mb-6">Account Details</h2>
-
-      <div className="space-y-2 text-lg">
-        <p><strong>Name:</strong> {userDetails.name}</p>
-        <p><strong>Email:</strong> {userDetails.email}</p>
-        <p><strong>Phone:</strong> {userDetails.phone}</p>
+    <div className="space-y-8">
+      {/* Header */}
+      <div>
+        <h2 className="text-3xl font-bold mb-3">Account Details</h2>
+        <p className="text-[var(--muted)] text-sm">
+          Manage your account information and password.
+        </p>
       </div>
 
-      <div className="mt-8">
-        <h3 className="font-semibold text-lg mb-3">Change Password</h3>
+      {/* User Info Box */}
+      <div className="p-6 rounded-2xl border border-[var(--border)] bg-[var(--card)] shadow-sm space-y-3">
+        <InfoRow label="Name" value={userDetails.name} />
+        <InfoRow label="Email" value={userDetails.email} />
+        <InfoRow label="Phone" value={userDetails.phone} />
+      </div>
 
-        {passSuccess && <p className="text-green-500 text-sm">{passSuccess}</p>}
-        {passError && <p className="text-red-500 text-sm">{passError}</p>}
+      {/* Password Section */}
+      <div className="p-6 rounded-2xl border border-[var(--border)] bg-[var(--card)] shadow-sm">
+        <h3 className="text-xl font-semibold mb-4">Change Password</h3>
 
+        {/* Status Messages */}
+        {passSuccess && (
+          <p className="text-green-500 text-sm mb-2 animate-fadeIn">
+            {passSuccess}
+          </p>
+        )}
+        {passError && (
+          <p className="text-red-500 text-sm mb-2 animate-fadeIn">
+            {passError}
+          </p>
+        )}
+
+        {/* Input */}
         <input
           type="password"
-          placeholder="New Password"
+          placeholder="Enter new password"
           value={newPass}
           onChange={(e) => {
             setNewPass(e.target.value);
             setPassError("");
           }}
-          className="w-full p-3 border border-[var(--border)] rounded-xl mb-3"
+          className="w-full p-3 rounded-xl border border-[var(--border)] bg-transparent focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition mb-4"
         />
 
+        {/* Button */}
         <button
           disabled={loadingPass}
           onClick={handlePasswordUpdate}
-          className="bg-[var(--accent)] text-white px-5 py-3 rounded-xl"
+          className={`w-full py-3 rounded-xl text-white font-medium transition hover:opacity-90 
+          bg-[var(--accent)] disabled:opacity-50 disabled:cursor-not-allowed`}
         >
-          {loadingPass ? "Updating..." : "Update Password"}
+          {loadingPass ? (
+            <span className="flex items-center justify-center gap-2">
+              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              Updating...
+            </span>
+          ) : (
+            "Update Password"
+          )}
         </button>
       </div>
-    </>
+    </div>
+  );
+}
+
+function InfoRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex justify-between items-center py-2 border-b border-[var(--border)]/40 last:border-b-0">
+      <span className="text-[var(--muted)]">{label}</span>
+      <span className="font-medium">{value}</span>
+    </div>
   );
 }
