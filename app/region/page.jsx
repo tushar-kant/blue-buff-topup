@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import HelpImagePopup from "../../components/HelpImage/HelpImagePopup";
+import { saveVerifiedPlayer } from "@/utils/storage/verifiedPlayerStorage";
+import RecentVerifiedPlayers from "./RecentVerifiedPlayers";
 
 export default function RegionPage() {
   const [id, setId] = useState("");
@@ -21,6 +23,15 @@ export default function RegionPage() {
     const data = await res.json();
     setResult(data);
     setLoading(false);
+     if (data?.success === 200) {
+    saveVerifiedPlayer({
+      playerId: id,
+      zoneId: zone,
+      username: data.data.username,
+      region: data.data.region,
+      savedAt: Date.now(),
+    });
+  }
   };
 
   return (
@@ -54,6 +65,17 @@ export default function RegionPage() {
         >
           {loading ? "Checking..." : "Check"}
         </button>
+
+         {/* ✅ Recent IDs (NEW) */}
+        <div className="mt-6">
+          <RecentVerifiedPlayers
+            limit={10}
+            onSelect={(player) => {
+              setId(player.playerId);
+              setZone(player.zoneId);
+            }}
+          />
+        </div>
 
         {result && (
           <div className="mt-5 p-4 bg-[var(--card)] rounded border border-[var(--border)]">

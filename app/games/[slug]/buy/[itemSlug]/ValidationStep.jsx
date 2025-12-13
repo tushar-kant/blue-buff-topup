@@ -1,4 +1,5 @@
 import HelpImagePopup from "../../../../../components/HelpImage/HelpImagePopup";
+import RecentVerifiedPlayers from "../../../../region/RecentVerifiedPlayers";
 
 export default function ValidationStep({
   playerId,
@@ -34,6 +35,13 @@ export default function ValidationStep({
       >
         Validate
       </button>
+       <RecentVerifiedPlayers
+        limit={10}
+        onSelect={(player) => {
+          setPlayerId(player.playerId);
+          setZoneId(player.zoneId);
+        }}
+      />
     </div>
   );
 }

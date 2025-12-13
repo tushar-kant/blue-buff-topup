@@ -15,7 +15,31 @@ export async function GET() {
 
     const data = await response.json();
 
-    return NextResponse.json(data);
+    /* ================= FILTER OUT TEST GAME ================= */
+
+    // Filter from `games`
+    const filteredGames = data?.data?.games?.filter(
+      (game) => game.gameSlug !== "test-1637"
+    );
+
+    // Filter from `category -> gameId`
+    const filteredCategories = data?.data?.category?.map((cat) => ({
+      ...cat,
+      gameId: cat.gameId.filter(
+        (game) => game.gameSlug !== "test-1637"
+      ),
+    }));
+
+    return NextResponse.json({
+      ...data,
+      data: {
+        ...data.data,
+        games: filteredGames,
+        category: filteredCategories,
+        totalGames: filteredGames?.length ?? 0,
+      },
+    });
+
   } catch (error) {
     console.error("GAME API ERROR:", error);
 

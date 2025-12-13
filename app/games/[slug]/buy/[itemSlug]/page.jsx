@@ -5,6 +5,7 @@ import { useParams, useSearchParams } from "next/navigation";
 import AuthGuard from "../../../../../components/AuthGuard";
 import ValidationStep from "./ValidationStep";
 import ReviewAndPaymentStep from "./ReviewAndPaymentStep";
+import { saveVerifiedPlayer } from "@/utils/storage/verifiedPlayerStorage";
 
 export default function BuyFlowPage() {
   const { slug, itemSlug } = useParams();
@@ -53,6 +54,13 @@ export default function BuyFlowPage() {
       alert("Invalid Player ID / Zone ID");
       return;
     }
+     saveVerifiedPlayer({
+    playerId,
+    zoneId,
+    username: data.data.username,
+    region: data.data.region,
+    savedAt: Date.now(),
+  });
 
     setReviewData({
       userName: data.data.username,
