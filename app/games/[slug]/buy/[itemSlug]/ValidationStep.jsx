@@ -1,3 +1,5 @@
+import HelpImagePopup from "../../../../../components/HelpImage/HelpImagePopup";
+
 export default function ValidationStep({
   playerId,
   setPlayerId,
@@ -7,7 +9,10 @@ export default function ValidationStep({
 }) {
   return (
     <div className="space-y-5">
-      <h2 className="text-2xl font-bold mb-2">Player Verification</h2>
+<div className="flex items-center justify-between mb-2">
+  <h2 className="text-2xl font-bold">Player Verification</h2>
+  <HelpImagePopup />
+</div>
       
       <input
         value={playerId}

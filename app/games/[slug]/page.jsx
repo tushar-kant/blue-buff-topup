@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import logo from "@/public/logo.png";
+import MLBBPurchaseGuide from "../../../components/HelpImage/MLBBPurchaseGuide";
 
 export default function GameDetailPage() {
   const { slug } = useParams();
@@ -155,6 +156,11 @@ useEffect(() => {
 
         </div>
       </div>
+<div className="max-w-4xl mx-auto mt-6">
+   <MLBBPurchaseGuide />
+
+</div>
+     
     </section>
   );
 }

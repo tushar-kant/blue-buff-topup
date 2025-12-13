@@ -74,7 +74,7 @@ export default function BuyFlowPage() {
       <section className="px-6 py-8 max-w-3xl mx-auto">
         {/* Step Indicator */}
         <div className="relative flex items-center justify-between mb-10">
-          <div className="absolute top-[38%] left-[10%] w-[80%] h-[3px] bg-gray-700 -z-0 rounded-full">
+          <div className="absolute top-[31%] left-[15%] w-[70%] h-[3px] bg-gray-700 -z-0 rounded-full">
             <div
               className="h-full bg-[var(--accent)] transition-all duration-500 rounded-full"
               style={{

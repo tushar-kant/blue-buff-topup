@@ -7,6 +7,7 @@ import GamesPage from "@/app/games/page";
 import GameBannerCarousel from "./GameBannerCarousel";
 import HomeServices from "./HomeServices";
 import TrustHighlights from "./TrustHighlights";
+import MLBBPurchaseGuide from "../HelpImage/MLBBPurchaseGuide";
 
 export default function HeroSection() {
   const [search, setSearch] = useState("");
@@ -27,6 +28,10 @@ export default function HeroSection() {
        <GameBannerCarousel/>
     <GamesPage/>
     {/* <HomeSection/> */}
+    <div className="p-4 m-2">
+        <MLBBPurchaseGuide/>
+    </div>
+   
     <HomeServices/>
     <TrustHighlights/>
    

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import HelpImagePopup from "../../components/HelpImage/HelpImagePopup";
 
 export default function RegionPage() {
   const [id, setId] = useState("");
@@ -26,7 +27,11 @@ export default function RegionPage() {
     <section className="min-h-screen pt-24 px-6 bg-[var(--background)] text-[var(--foreground)]">
       <div className="max-w-lg mx-auto">
 
-        <h1 className="text-2xl font-bold mb-4">Check Region</h1>
+  <div className="flex items-center justify-between mb-4">
+  <h2 className="text-2xl font-bold">Check Region</h2>
+  <HelpImagePopup />
+</div>
+
 
         <input
           className="w-full p-3 mb-3 rounded bg-[var(--card)] border border-[var(--border)]"
