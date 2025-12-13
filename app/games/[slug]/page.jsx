@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import logo from "@/public/logo.png";
@@ -9,68 +9,84 @@ import MLBBPurchaseGuide from "../../../components/HelpImage/MLBBPurchaseGuide";
 export default function GameDetailPage() {
   const { slug } = useParams();
   const router = useRouter();
+  const sliderRef = useRef(null);
+  const buyPanelRef = useRef(null);
 
   const [game, setGame] = useState(null);
+  const [activeItem, setActiveItem] = useState(null);
 
-useEffect(() => {
-  const token = localStorage.getItem("token");
+  useEffect(() => {
+    const token = localStorage.getItem("token");
 
-  fetch(`/api/games/${slug}`, {
-    headers: {
-      ...(token && { Authorization: `Bearer ${token}` }),
-    },
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      const gameData = data.data;
-
-      // Extract items
-      let items = [...gameData.itemId];
-
-      // Find specific items
-      const weeklyPass = items.find(
-        (i) => i.itemSlug === "weekly-pass816"
-      );
-      const twilightPass = items.find(
-        (i) => i.itemSlug === "twilight-pass663"
-      );
-
-      // Remove them from original list
-      items = items.filter(
-        (i) =>
-          i.itemSlug !== "weekly-pass816" &&
-          i.itemSlug !== "twilight-pass663"
-      );
-
-      // Final sorted list
-      const sortedItems = [
-        weeklyPass,
-        twilightPass,
-        ...items,
-      ].filter(Boolean);
-
-      setGame({
-        ...gameData,
-        itemId: sortedItems,
-      });
+    fetch(`/api/games/${slug}`, {
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
     })
-    .catch((err) => {
-      console.error("Game fetch error:", err);
+      .then(res => res.json())
+      .then(data => {
+        // 👉 ALL items together, sorted by price
+        const allItems = [...data.data.itemId].sort(
+          (a, b) => a.sellingPrice - b.sellingPrice
+        );
+
+        setGame({
+          ...data.data,
+          allItems,
+        });
+
+        setActiveItem(allItems[0]);
+      });
+  }, [slug]);
+
+  if (!game || !activeItem) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-[var(--muted)]">
+        Loading…
+      </div>
+    );
+  }
+
+  /* ================= PRICE SLICES ================= */
+  const prices = game.allItems.map(i => i.sellingPrice);
+  const min = Math.min(...prices);
+  const max = Math.max(...prices);
+
+  const slices = [
+    min,
+    Math.round(min + (max - min) * 0.25),
+    Math.round(min + (max - min) * 0.5),
+    Math.round(min + (max - min) * 0.75),
+    `${max}+`,
+  ];
+
+  const goBuy = (item) => {
+    const query = new URLSearchParams({
+      name: item.itemName,
+      price: item.sellingPrice.toString(),
+      dummy: item.dummyPrice.toString(),
+      image: item.itemImageId?.image || "",
     });
-}, [slug]);
 
+    router.push(
+      `/games/${slug}/buy/${item.itemSlug}?${query.toString()}`
+    );
+  };
 
-
-  if (!game) return <div className="p-6">Loading...</div>;
+  const selectAndScroll = (item) => {
+    setActiveItem(item);
+    buyPanelRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  };
 
   return (
-    <section className="px-6 py-10 bg-[var(--background)] text-[var(--foreground)] min-h-screen">
+    <section className="min-h-screen bg-[var(--background)] text-[var(--foreground)] px-4 py-6">
 
-      {/* ================= HEADER CARD ================= */}
-      <div className="max-w-4xl mx-auto mb-8 bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 shadow-lg flex items-center gap-6">
-
-        {/* Game Image */}
-        <div className="w-[120px] h-[120px] relative flex-shrink-0 rounded-xl overflow-hidden shadow-md">
+      {/* ================= HEADER ================= */}
+      <div className="max-w-6xl mx-auto mb-6 flex items-center gap-4">
+        <div className="w-14 h-14 relative rounded-lg overflow-hidden">
           <Image
             src={game.gameImageId?.image || logo}
             alt={game.gameName}
@@ -78,89 +94,107 @@ useEffect(() => {
             className="object-cover"
           />
         </div>
-
-        {/* Game Info */}
-        <div className="flex flex-col">
-          <h1 className="text-3xl font-extrabold tracking-tight">
-            {game.gameName}
-          </h1>
-
-          <p className="text-[var(--muted)] text-sm mt-1">
-            {game.gameFrom}
-          </p>
-
-          {game.tagId && (
-            <span
-              className="text-xs px-3 py-1 rounded-full mt-3 w-fit font-semibold shadow-md"
-              style={{
-                background: game.tagId.tagBackground,
-                color: game.tagId.tagColor,
-              }}
-            >
-              {game.tagId.tagName}
-            </span>
-          )}
+        <div>
+          <h1 className="text-2xl font-extrabold">{game.gameName}</h1>
+          <p className="text-xs text-[var(--muted)]">{game.gameFrom}</p>
         </div>
       </div>
 
-      {/* ================= PACK SECTION ================= */}
-      <div className="max-w-4xl mx-auto">
-        <h2 className="text-xl font-bold mb-4 tracking-tight">Choose Amount</h2>
-
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-
-          {game.itemId.map((item, index) => (
+      {/* ================= SINGLE PRICE SLIDER ================= */}
+      <div className="max-w-6xl mx-auto mb-4">
+        <div
+          ref={sliderRef}
+          className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-3 scrollbar-hide"
+        >
+          {game.allItems.map(item => (
             <div
-              key={index}
-              onClick={() => {
-                const query = new URLSearchParams({
-                  name: item.itemName,
-                  price: item.sellingPrice.toString(),
-                  dummy: item.dummyPrice.toString(),
-                  image: item.itemImageId?.image || "",
-                });
-
-                router.push(`/games/${slug}/buy/${item.itemSlug}?${query.toString()}`);
-              }}
-              className="group bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 cursor-pointer 
-              hover:border-[var(--accent)] hover:shadow-[0_0_15px_var(--accent)] hover:-translate-y-1 
-              transition-all duration-300"
+              key={item.itemSlug}
+              onClick={() => selectAndScroll(item)}
+              className={`snap-center min-w-[150px] rounded-xl border p-3 cursor-pointer
+              transition
+              ${
+                activeItem.itemSlug === item.itemSlug
+                  ? "border-[var(--accent)] bg-[var(--card)]"
+                  : "border-[var(--border)] opacity-70 hover:opacity-100"
+              }`}
             >
-              {/* Thumbnail */}
-              <div className="w-full h-25 relative mb-3 rounded-lg overflow-hidden shadow-sm">
-                <Image
-                  src={item.itemImageId?.image || logo}
-                  alt={item.itemName}
-                  fill
-                  className="object-cover group-hover:scale-110 transition-transform duration-300"
-                />
-              </div>
-
-              {/* Item Name */}
-              <h3 className="font-semibold text-[15px] leading-tight">
+              <p className="text-sm font-semibold truncate">
                 {item.itemName}
-              </h3>
+              </p>
 
-              {/* Price */}
-             <div className="mt-2 flex items-center justify-between">
-  <p className="text-[var(--accent)] font-bold text-[16px]">
-    ₹{item.sellingPrice}
-  </p>
-  <p className="text-xs line-through text-[var(--muted)]">
-    ₹{item.dummyPrice}
-  </p>
-</div>
+              <p className="mt-1 text-lg font-bold text-[var(--accent)]">
+                ₹{item.sellingPrice}
+              </p>
 
+              {item.dummyPrice && (
+                <p className="text-xs line-through text-[var(--muted)]">
+                  ₹{item.dummyPrice}
+                </p>
+              )}
             </div>
           ))}
+        </div>
 
+        {/* ================= CHECKPOINT DOTS ================= */}
+        <div className="flex justify-between max-w-xs mx-auto mt-2">
+          {slices.map((_, i) => (
+            <span
+              key={i}
+              className="w-2.5 h-2.5 rounded-full bg-[var(--border)]"
+            />
+          ))}
+        </div>
+
+        {/* ================= PRICE LABELS ================= */}
+        <div className="flex justify-between max-w-xs mx-auto mt-1 text-[10px] text-[var(--muted)]">
+          {slices.map((p, i) => (
+            <span key={i}>₹{p}</span>
+          ))}
         </div>
       </div>
-<div className="max-w-4xl mx-auto mt-6">
-   <MLBBPurchaseGuide />
 
-</div>
-     
+      {/* ================= BUY PANEL ================= */}
+      <div
+        ref={buyPanelRef}
+        className="max-w-6xl mx-auto bg-[var(--card)] border border-[var(--border)]
+        rounded-xl p-3.5 flex flex-row gap-4 items-center"
+      >
+        <div className="relative w-[110px] h-[110px] rounded-xl overflow-hidden flex-shrink-0">
+          <Image
+            src={activeItem.itemImageId?.image || logo}
+            alt={activeItem.itemName}
+            fill
+            className="object-cover"
+          />
+        </div>
+
+        <div className="flex flex-col flex-1 min-w-0">
+          <h2 className="text-lg font-bold truncate">
+            {activeItem.itemName}
+          </h2>
+
+          <div className="flex items-center gap-2 mt-1.5">
+            <p className="text-2xl font-extrabold text-[var(--accent)]">
+              ₹{activeItem.sellingPrice}
+            </p>
+            <p className="text-xs line-through text-[var(--muted)]">
+              ₹{activeItem.dummyPrice}
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={() => goBuy(activeItem)}
+          className="px-5 py-2.5 rounded-lg bg-[var(--accent)]
+          text-black font-semibold text-sm whitespace-nowrap
+          hover:opacity-90 transition"
+        >
+          Buy →
+        </button>
+      </div>
+      <div className="max-w-6xl mx-auto mt-6">
+   <MLBBPurchaseGuide />
+   </div>
     </section>
   );
 }
