@@ -9,12 +9,15 @@ import MLBBPurchaseGuide from "../../../components/HelpImage/MLBBPurchaseGuide";
 export default function GameDetailPage() {
   const { slug } = useParams();
   const router = useRouter();
+
   const sliderRef = useRef(null);
   const buyPanelRef = useRef(null);
 
   const [game, setGame] = useState(null);
   const [activeItem, setActiveItem] = useState(null);
+  const [redirecting, setRedirecting] = useState(false);
 
+  /* ================= FETCH ================= */
   useEffect(() => {
     const token = localStorage.getItem("token");
 
@@ -25,7 +28,6 @@ export default function GameDetailPage() {
     })
       .then(res => res.json())
       .then(data => {
-        // 👉 ALL items together, sorted by price
         const allItems = [...data.data.itemId].sort(
           (a, b) => a.sellingPrice - b.sellingPrice
         );
@@ -47,20 +49,47 @@ export default function GameDetailPage() {
     );
   }
 
-  /* ================= PRICE SLICES ================= */
-  const prices = game.allItems.map(i => i.sellingPrice);
-  const min = Math.min(...prices);
-  const max = Math.max(...prices);
+  /* ================= PRICE LEVELS (REAL) ================= */
+  const items = game.allItems;
+  const len = items.length;
 
-  const slices = [
-    min,
-    Math.round(min + (max - min) * 0.25),
-    Math.round(min + (max - min) * 0.5),
-    Math.round(min + (max - min) * 0.75),
-    `${max}+`,
-  ];
+  const priceLevelsRaw = [
+    items[0],                              // lowest
+    items[Math.floor(len * 0.3)],          // mid-low
+    items[Math.floor(len * 0.6)],          // mid-high
+    items[len - 1],                        // highest
+  ].filter(Boolean);
+
+  // remove duplicates safely
+  const priceLevels = Array.from(
+    new Map(priceLevelsRaw.map(i => [i.itemSlug, i])).values()
+  );
+
+  /* ================= HELPERS ================= */
+  const scrollToItem = (item) => {
+    setActiveItem(item);
+
+    const index = items.findIndex(
+      i => i.itemSlug === item.itemSlug
+    );
+
+    const el = sliderRef.current?.children[index];
+    el?.scrollIntoView({
+      behavior: "smooth",
+      inline: "center",
+      block: "nearest",
+    });
+
+    buyPanelRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  };
 
   const goBuy = (item) => {
+    if (redirecting) return;
+    setRedirecting(true);
+
     const query = new URLSearchParams({
       name: item.itemName,
       price: item.sellingPrice.toString(),
@@ -71,14 +100,6 @@ export default function GameDetailPage() {
     router.push(
       `/games/${slug}/buy/${item.itemSlug}?${query.toString()}`
     );
-  };
-
-  const selectAndScroll = (item) => {
-    setActiveItem(item);
-    buyPanelRef.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "center",
-    });
   };
 
   return (
@@ -100,18 +121,17 @@ export default function GameDetailPage() {
         </div>
       </div>
 
-      {/* ================= SINGLE PRICE SLIDER ================= */}
+      {/* ================= SLIDER ================= */}
       <div className="max-w-6xl mx-auto mb-4">
         <div
           ref={sliderRef}
           className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-3 scrollbar-hide"
         >
-          {game.allItems.map(item => (
+          {items.map(item => (
             <div
               key={item.itemSlug}
-              onClick={() => selectAndScroll(item)}
-              className={`snap-center min-w-[150px] rounded-xl border p-3 cursor-pointer
-              transition
+              onClick={() => scrollToItem(item)}
+              className={`snap-center min-w-[150px] rounded-xl border p-3 cursor-pointer transition
               ${
                 activeItem.itemSlug === item.itemSlug
                   ? "border-[var(--accent)] bg-[var(--card)]"
@@ -135,20 +155,27 @@ export default function GameDetailPage() {
           ))}
         </div>
 
-        {/* ================= CHECKPOINT DOTS ================= */}
-        <div className="flex justify-between max-w-xs mx-auto mt-2">
-          {slices.map((_, i) => (
-            <span
-              key={i}
-              className="w-2.5 h-2.5 rounded-full bg-[var(--border)]"
-            />
-          ))}
+        {/* ================= PRICE DOTS ================= */}
+        <div className="flex justify-between max-w-xs mx-auto mt-3">
+          {priceLevels.map(level => {
+            const active = activeItem.itemSlug === level.itemSlug;
+            return (
+              <button
+                key={level.itemSlug}
+                onClick={() => scrollToItem(level)}
+                className={`w-3 h-3 rounded-full transition
+                ${active ? "bg-[var(--accent)]" : "bg-[var(--border)]"}`}
+              />
+            );
+          })}
         </div>
 
         {/* ================= PRICE LABELS ================= */}
         <div className="flex justify-between max-w-xs mx-auto mt-1 text-[10px] text-[var(--muted)]">
-          {slices.map((p, i) => (
-            <span key={i}>₹{p}</span>
+          {priceLevels.map(level => (
+            <span key={level.itemSlug}>
+              ₹{level.sellingPrice}
+            </span>
           ))}
         </div>
       </div>
@@ -157,44 +184,51 @@ export default function GameDetailPage() {
       <div
         ref={buyPanelRef}
         className="max-w-6xl mx-auto bg-[var(--card)] border border-[var(--border)]
-        rounded-xl p-3.5 flex flex-row gap-4 items-center"
+        rounded-xl p-4 flex flex-col gap-4"
       >
-        <div className="relative w-[110px] h-[110px] rounded-xl overflow-hidden flex-shrink-0">
-          <Image
-            src={activeItem.itemImageId?.image || logo}
-            alt={activeItem.itemName}
-            fill
-            className="object-cover"
-          />
-        </div>
+        <div className="flex gap-4 items-center">
+          <div className="relative w-[110px] h-[110px] rounded-xl overflow-hidden">
+            <Image
+              src={activeItem.itemImageId?.image || logo}
+              alt={activeItem.itemName}
+              fill
+              className="object-cover"
+            />
+          </div>
 
-        <div className="flex flex-col flex-1 min-w-0">
-          <h2 className="text-lg font-bold truncate">
-            {activeItem.itemName}
-          </h2>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-lg font-bold truncate">
+              {activeItem.itemName}
+            </h2>
 
-          <div className="flex items-center gap-2 mt-1.5">
-            <p className="text-2xl font-extrabold text-[var(--accent)]">
-              ₹{activeItem.sellingPrice}
-            </p>
-            <p className="text-xs line-through text-[var(--muted)]">
-              ₹{activeItem.dummyPrice}
-            </p>
+            <div className="flex items-center gap-2 mt-1.5">
+              <p className="text-2xl font-extrabold text-[var(--accent)]">
+                ₹{activeItem.sellingPrice}
+              </p>
+              <p className="text-xs line-through text-[var(--muted)]">
+                ₹{activeItem.dummyPrice}
+              </p>
+            </div>
           </div>
         </div>
 
         <button
           onClick={() => goBuy(activeItem)}
-          className="px-5 py-2.5 rounded-lg bg-[var(--accent)]
-          text-black font-semibold text-sm whitespace-nowrap
-          hover:opacity-90 transition"
+          disabled={redirecting}
+          className={`w-full py-3 rounded-xl font-bold text-base transition
+          ${
+            redirecting
+              ? "bg-[var(--border)] text-[var(--muted)] cursor-not-allowed"
+              : "bg-[var(--accent)] text-black hover:opacity-90"
+          }`}
         >
-          Buy →
+          {redirecting ? "Redirecting…" : "Buy Now →"}
         </button>
       </div>
+
       <div className="max-w-6xl mx-auto mt-6">
-   <MLBBPurchaseGuide />
-   </div>
+        <MLBBPurchaseGuide />
+      </div>
     </section>
   );
 }
