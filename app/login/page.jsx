@@ -16,15 +16,15 @@ export default function AuthPage() {
   const [errors, setErrors] = useState({});
   const [success, setSuccess] = useState("");
 
-  // ---------- VALIDATION HELPERS ----------
+  /* ---------- VALIDATION HELPERS ---------- */
   const isGmail = (email) => /^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(email);
   const isPhone = (phone) => /^[0-9]{10}$/.test(phone);
   const minLen = (txt, min) => txt.length >= min;
   const maxLen = (txt, max) => txt.length <= max;
 
-  // ======================================================
-  // ---------------------- LOGIN -------------------------
-  // ======================================================
+  /* ======================================================
+     ---------------------- LOGIN -------------------------
+     ====================================================== */
   const handleLogin = async () => {
     let errs = {};
 
@@ -49,47 +49,39 @@ export default function AuthPage() {
       return;
     }
 
-    // Save to localStorage
-    localStorage.setItem("isLoggedIn", "true");
+    /* ================= SAVE SAFE DATA ONLY ================= */
+    localStorage.setItem("token", data.token); // 🔐 JWT (source of truth)
     localStorage.setItem("userName", data.user.name);
-    localStorage.setItem("walletBalance", data.user.wallet);
-    localStorage.setItem("order", data.user.order);
     localStorage.setItem("email", data.user.email);
     localStorage.setItem("phone", data.user.phone);
     localStorage.setItem("userId", data.user.userId);
-    localStorage.setItem("userType", data.user.userType);
 
     setSuccess("Login successful! Redirecting...");
     setTimeout(() => (window.location.href = "/"), 1000);
   };
 
-  // ======================================================
-  // -------------------- REGISTER ------------------------
-  // ======================================================
+  /* ======================================================
+     -------------------- REGISTER ------------------------
+     ====================================================== */
   const handleRegister = async () => {
     let errs = {};
 
-    // NAME VALIDATION
     if (!regData.name.trim()) errs.name = "Name is required";
     else if (!minLen(regData.name, 3)) errs.name = "Minimum 3 characters";
     else if (!maxLen(regData.name, 15)) errs.name = "Maximum 15 characters";
 
-    // EMAIL VALIDATION (GMAIL ONLY)
     if (!regData.email.trim()) errs.email = "Email is required";
     else if (!isGmail(regData.email))
-      errs.email = "Email must be a valid Gmail (example@gmail.com)";
+      errs.email = "Email must be a valid Gmail";
 
-    // PHONE VALIDATION
     if (!regData.phone.trim()) errs.phone = "Phone number is required";
     else if (!isPhone(regData.phone))
       errs.phone = "Phone number must be exactly 10 digits";
 
-    // PASSWORD VALIDATION
     if (!regData.password.trim()) errs.password = "Password is required";
     else if (!minLen(regData.password, 6))
-      errs.password = "Password must be at least 6 characters long";
+      errs.password = "Password must be at least 6 characters";
 
-    // If errors exist → stop
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
       return;
@@ -119,7 +111,7 @@ export default function AuthPage() {
         {/* Tabs */}
         <div className="flex mb-6 border-b border-[var(--border)]">
           <button
-            className={`flex-1 py-3 text-center font-semibold ${
+            className={`flex-1 py-3 font-semibold ${
               tab === "login"
                 ? "text-[var(--accent)] border-b-2 border-[var(--accent)]"
                 : "text-[var(--muted)]"
@@ -134,7 +126,7 @@ export default function AuthPage() {
           </button>
 
           <button
-            className={`flex-1 py-3 text-center font-semibold ${
+            className={`flex-1 py-3 font-semibold ${
               tab === "register"
                 ? "text-[var(--accent)] border-b-2 border-[var(--accent)]"
                 : "text-[var(--muted)]"
@@ -150,43 +142,40 @@ export default function AuthPage() {
         </div>
 
         {success && (
-          <p className="text-green-500 text-center mb-4 font-medium">{success}</p>
+          <p className="text-green-500 text-center mb-4 font-medium">
+            {success}
+          </p>
         )}
 
-        {/* ----------------------- LOGIN UI ----------------------- */}
+        {/* LOGIN */}
         {tab === "login" && (
           <div className="space-y-4">
+            <input
+              type="text"
+              placeholder="Email or Phone"
+              className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)]"
+              value={loginData.user}
+              onChange={(e) =>
+                setLoginData({ ...loginData, user: e.target.value })
+              }
+            />
+            {errors.user && (
+              <p className="text-red-500 text-sm">{errors.user}</p>
+            )}
 
-            {/* Email / Phone */}
-            <div>
-              <input
-                type="text"
-                placeholder="Email or Phone"
-                className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)]"
-                value={loginData.user}
-                onChange={(e) =>
-                  setLoginData({ ...loginData, user: e.target.value })
-                }
-              />
-              {errors.user && <p className="text-red-500 text-sm mt-1">{errors.user}</p>}
-            </div>
+            <input
+              type="password"
+              placeholder="Password"
+              className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)]"
+              value={loginData.password}
+              onChange={(e) =>
+                setLoginData({ ...loginData, password: e.target.value })
+              }
+            />
+            {errors.password && (
+              <p className="text-red-500 text-sm">{errors.password}</p>
+            )}
 
-            <div>
-              <input
-                type="password"
-                placeholder="Password"
-                className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)]"
-                value={loginData.password}
-                onChange={(e) =>
-                  setLoginData({ ...loginData, password: e.target.value })
-                }
-              />
-              {errors.password && (
-                <p className="text-red-500 text-sm mt-1">{errors.password}</p>
-              )}
-            </div>
-
-            {/* Submit */}
             <button
               onClick={handleLogin}
               className="w-full py-3 rounded-lg bg-[var(--accent)] text-white font-semibold"
@@ -196,76 +185,62 @@ export default function AuthPage() {
           </div>
         )}
 
-        {/* ----------------------- REGISTER UI ----------------------- */}
+        {/* REGISTER */}
         {tab === "register" && (
           <div className="space-y-4">
+            <input
+              type="text"
+              placeholder="Full Name"
+              className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)]"
+              value={regData.name}
+              onChange={(e) =>
+                setRegData({ ...regData, name: e.target.value })
+              }
+            />
+            {errors.name && (
+              <p className="text-red-500 text-sm">{errors.name}</p>
+            )}
 
-            {/* Name */}
-            <div>
-              <input
-                type="text"
-                placeholder="Full Name"
-                className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)]"
-                value={regData.name}
-                onChange={(e) =>
-                  setRegData({ ...regData, name: e.target.value })
-                }
-              />
-              {errors.name && (
-                <p className="text-red-500 text-sm mt-1">{errors.name}</p>
-              )}
-            </div>
+            <input
+              type="email"
+              placeholder="Gmail Address"
+              className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)]"
+              value={regData.email}
+              onChange={(e) =>
+                setRegData({ ...regData, email: e.target.value })
+              }
+            />
+            {errors.email && (
+              <p className="text-red-500 text-sm">{errors.email}</p>
+            )}
 
-            {/* Email */}
-            <div>
-              <input
-                type="email"
-                placeholder="Gmail Address"
-                className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)]"
-                value={regData.email}
-                onChange={(e) =>
-                  setRegData({ ...regData, email: e.target.value })
-                }
-              />
-              {errors.email && (
-                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-              )}
-            </div>
+            <input
+              type="text"
+              placeholder="Phone Number"
+              maxLength={10}
+              className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)]"
+              value={regData.phone}
+              onChange={(e) =>
+                setRegData({ ...regData, phone: e.target.value })
+              }
+            />
+            {errors.phone && (
+              <p className="text-red-500 text-sm">{errors.phone}</p>
+            )}
 
-            {/* Phone */}
-            <div>
-              <input
-                type="text"
-                placeholder="Phone Number"
-                maxLength={10}
-                className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)]"
-                value={regData.phone}
-                onChange={(e) =>
-                  setRegData({ ...regData, phone: e.target.value })
-                }
-              />
-              {errors.phone && (
-                <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
-              )}
-            </div>
+            <input
+              type="password"
+              placeholder="Password (min 6 characters)"
+              className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)]"
+              value={regData.password}
+              onChange={(e) =>
+                setRegData({ ...regData, password: e.target.value })
+              }
+            />
+            {errors.password && (
+              <p className="text-red-500 text-sm">{errors.password}</p>
+            )}
 
-            {/* Password */}
-            <div>
-              <input
-                type="password"
-                placeholder="Password (min 6 characters)"
-                className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)]"
-                value={regData.password}
-                onChange={(e) =>
-                  setRegData({ ...regData, password: e.target.value })
-                }
-              />
-              {errors.password && (
-                <p className="text-red-500 text-sm mt-1">{errors.password}</p>
-              )}
-            </div>
-
-            {/* Register */}
             <button
               onClick={handleRegister}
               className="w-full py-3 rounded-lg bg-[var(--accent)] text-white font-semibold"

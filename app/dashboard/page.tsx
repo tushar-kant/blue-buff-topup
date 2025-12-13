@@ -5,8 +5,8 @@ import AuthGuard from "../../components/AuthGuard";
 import DashboardCard from "../../components/Dashboard/DashboardCard";
 import OrderItem from "../../components/Dashboard/OrderItem";
 import WalletTab from "../../components/Dashboard/WalletTab";
-import AccountTab from "../../components/Dashboard/AccountTab"; // Add this import
-import QueryTab from "../../components/Dashboard/QueryTab"; // Add this import
+import AccountTab from "../../components/Dashboard/AccountTab";
+import QueryTab from "../../components/Dashboard/QueryTab";
 
 type OrderType = {
   gameSlug: string;
@@ -26,55 +26,59 @@ export default function Dashboard() {
   const [orders, setOrders] = useState<OrderType[]>([]);
   const [totalOrders, setTotalOrders] = useState(0);
   const [walletBalance, setWalletBalance] = useState(0);
+
   const [userDetails, setUserDetails] = useState({
-    name: "Demo User",
+    name: "",
     email: "",
     phone: "",
   });
 
-  // ================= LOAD USER + WALLET + ORDERS =================
+  const token =
+    typeof window !== "undefined"
+      ? localStorage.getItem("token")
+      : null;
+
+  // ================= LOAD USER + WALLET =================
   useEffect(() => {
-    const storedEmail = localStorage.getItem("email");
-    const storedPhone = localStorage.getItem("phone");
+    if (!token) return;
 
-    if (!storedEmail && !storedPhone) return;
-
-    const identifier = storedEmail || storedPhone;
-
-    // Fetch user data
-    fetch("/api/auth/get-user", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ identifier }),
+    fetch("/api/auth/me", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     })
       .then((res) => res.json())
       .then((data) => {
-        if (data.success) {
-          setUserDetails({
-            name: data.user.name,
-            email: data.user.email,
-            phone: data.user.phone,
-          });
+        if (!data.success) return;
 
-          setWalletBalance(data.user.wallet || 0);
-          setTotalOrders(data.user.order || 0);
-        }
+        setUserDetails({
+          name: data.user.name,
+          email: data.user.email,
+          phone: data.user.phone,
+        });
+
+        setWalletBalance(data.user.wallet || 0);
+        setTotalOrders(data.user.order || 0);
       });
+  }, [token]);
 
-    // Fetch orders
+  // ================= LOAD ORDERS =================
+  useEffect(() => {
+    if (!token) return;
+
     fetch("/api/order/user", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: storedEmail || null,
-        phone: storedPhone || null,
-      }),
+      method: "POST", // ✅ MUST match backend
+      headers: {
+        Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+
+      },
     })
       .then((res) => res.json())
       .then((data) => {
         if (data.success) setOrders(data.orders);
       });
-  }, []);
+  }, [token]);
 
   const tabCards = [
     { key: "orders", label: "Total Orders", value: totalOrders },
@@ -83,7 +87,6 @@ export default function Dashboard() {
     { key: "query", label: "Queries", value: "Support" },
   ];
 
-  // ===================================================================
   return (
     <AuthGuard>
       <section className="px-6 py-10 min-h-screen bg-[var(--background)] text-[var(--foreground)]">
@@ -100,10 +103,10 @@ export default function Dashboard() {
           ))}
         </div>
 
-        {/* CONTENT WRAPPER */}
+        {/* CONTENT */}
         <div className="max-w-4xl mx-auto bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 shadow-lg">
 
-          {/* =============== ORDERS TAB =============== */}
+          {/* ORDERS */}
           {activeTab === "orders" && (
             <>
               <h2 className="text-2xl font-semibold mb-6">Your Orders</h2>
@@ -120,23 +123,21 @@ export default function Dashboard() {
             </>
           )}
 
-          {/* =============== WALLET TAB =============== */}
+          {/* WALLET */}
           {activeTab === "wallet" && (
-            <WalletTab 
+            <WalletTab
               walletBalance={walletBalance}
               setWalletBalance={setWalletBalance}
             />
           )}
 
-          {/* =============== ACCOUNT TAB =============== */}
+          {/* ACCOUNT */}
           {activeTab === "account" && (
             <AccountTab userDetails={userDetails} />
           )}
 
-          {/* =============== QUERY TAB =============== */}
-          {activeTab === "query" && (
-            <QueryTab />
-          )}
+          {/* QUERY */}
+          {activeTab === "query" && <QueryTab />}
         </div>
       </section>
     </AuthGuard>

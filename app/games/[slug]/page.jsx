@@ -12,7 +12,13 @@ export default function GameDetailPage() {
   const [game, setGame] = useState(null);
 
 useEffect(() => {
-  fetch(`/api/games/${slug}`)
+  const token = localStorage.getItem("token");
+
+  fetch(`/api/games/${slug}`, {
+    headers: {
+      ...(token && { Authorization: `Bearer ${token}` }),
+    },
+  })
     .then((res) => res.json())
     .then((data) => {
       const gameData = data.data;
@@ -21,27 +27,37 @@ useEffect(() => {
       let items = [...gameData.itemId];
 
       // Find specific items
-      const weeklyPass = items.find(i => i.itemSlug === "weekly-pass816");
-      const twilightPass = items.find(i => i.itemSlug === "twilight-pass663");
+      const weeklyPass = items.find(
+        (i) => i.itemSlug === "weekly-pass816"
+      );
+      const twilightPass = items.find(
+        (i) => i.itemSlug === "twilight-pass663"
+      );
 
       // Remove them from original list
       items = items.filter(
-        i => i.itemSlug !== "weekly-pass816" && i.itemSlug !== "twilight-pass663"
+        (i) =>
+          i.itemSlug !== "weekly-pass816" &&
+          i.itemSlug !== "twilight-pass663"
       );
 
       // Final sorted list
       const sortedItems = [
         weeklyPass,
         twilightPass,
-        ...items
-      ].filter(Boolean); // remove null if item missing
+        ...items,
+      ].filter(Boolean);
 
       setGame({
         ...gameData,
-        itemId: sortedItems
+        itemId: sortedItems,
       });
+    })
+    .catch((err) => {
+      console.error("Game fetch error:", err);
     });
 }, [slug]);
+
 
 
   if (!game) return <div className="p-6">Loading...</div>;

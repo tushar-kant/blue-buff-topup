@@ -1,25 +1,35 @@
 import { connectDB } from "@/lib/mongodb";
 import User from "@/models/User";
+import jwt from "jsonwebtoken";
 
 export async function POST(request) {
   try {
     await connectDB();
-    const body = await request.json();
 
-    const { identifier } = body; 
-    // identifier = email or phone
+    /* ================= AUTH ================= */
+    const authHeader = request.headers.get("authorization");
 
-    if (!identifier) {
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return Response.json(
-        { success: false, message: "Email or Phone is required" },
-        { status: 400 }
+        { success: false, message: "Unauthorized" },
+        { status: 401 }
       );
     }
 
-    // Find user by email OR phone
-    const foundUser = await User.findOne({
-      $or: [{ email: identifier }, { phone: identifier }],
-    });
+    const token = authHeader.split(" ")[1];
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch {
+      return Response.json(
+        { success: false, message: "Invalid token" },
+        { status: 401 }
+      );
+    }
+
+    /* ================= FETCH USER ================= */
+    const foundUser = await User.findById(decoded.userId);
 
     if (!foundUser) {
       return Response.json(
@@ -28,6 +38,7 @@ export async function POST(request) {
       );
     }
 
+    /* ================= RESPONSE ================= */
     return Response.json(
       {
         success: true,
@@ -36,19 +47,20 @@ export async function POST(request) {
           name: foundUser.name,
           email: foundUser.email,
           phone: foundUser.phone,
-          wallet: foundUser.wallet,
+          wallet: foundUser.wallet,      // OK to show (not trust)
           order: foundUser.order,
           userId: foundUser.userId,
+          userType: foundUser.userType,
           createdAt: foundUser.createdAt,
           updatedAt: foundUser.updatedAt,
-          userType: foundUser.userType,
         },
       },
       { status: 200 }
     );
   } catch (error) {
+    console.error("Get User Error:", error);
     return Response.json(
-      { success: false, message: "Server error", error: error.message },
+      { success: false, message: "Server error" },
       { status: 500 }
     );
   }
