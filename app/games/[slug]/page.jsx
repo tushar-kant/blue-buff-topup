@@ -197,7 +197,7 @@ export default function GameDetailPage() {
           </div>
 
           <div className="flex-1 min-w-0">
-            <h2 className="text-lg font-bold truncate">
+            <h2 className="text-lg font-bold">
               {activeItem.itemName}
             </h2>
 
