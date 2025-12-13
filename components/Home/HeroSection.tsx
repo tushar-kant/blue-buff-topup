@@ -8,6 +8,8 @@ import GameBannerCarousel from "./GameBannerCarousel";
 import HomeServices from "./HomeServices";
 import TrustHighlights from "./TrustHighlights";
 import MLBBPurchaseGuide from "../HelpImage/MLBBPurchaseGuide";
+import TopNoticeBanner from "./TopNoticeBanner";
+import ScrollingNoticeBand from "./ScrollingNoticeBand";
 
 export default function HeroSection() {
   const [search, setSearch] = useState("");
@@ -25,8 +27,11 @@ export default function HeroSection() {
 
   return (
     <>
+     <TopNoticeBanner/>
        <GameBannerCarousel/>
+         <ScrollingNoticeBand/>
     <GamesPage/>
+      <ScrollingNoticeBand/>
     {/* <HomeSection/> */}
     <div className="p-4 m-2">
         <MLBBPurchaseGuide/>

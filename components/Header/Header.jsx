@@ -135,13 +135,22 @@ export default function Header() {
                   </Link>
 
                   {/* ADMIN / OWNER */}
-                  {(user.userType === "admin" || user.userType === "owner") && (
+                  {( user.userType === "owner") && (
+                    <Link
+                      href="/owner-panal"
+                      className="block py-2 hover:text-[var(--accent)]"
+                      onClick={() => setUserMenuOpen(false)}
+                    >
+                      Admin Panel
+                    </Link>
+                  )}
+                   {( user.userType === "admin") && (
                     <Link
                       href="/admin-panal"
                       className="block py-2 hover:text-[var(--accent)]"
                       onClick={() => setUserMenuOpen(false)}
                     >
-                      Admin Panel
+                      Reseller Panel
                     </Link>
                   )}
 

@@ -2,18 +2,35 @@ import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 
 /* ================= PRICE RULES ================= */
-const getMarkupPercent = (userType) => {
-  if (userType === "admin") return 1;
+const getMarkupPercentByPrice = (userType, price) => {
+  const p = Number(price);
+
+  // OWNER → always base price
   if (userType === "owner") return 0;
-  return 2; // user OR no JWT
+
+  // ADMIN PRICING
+  if (userType === "admin") {
+    if (p < 100) return 0.5;
+    if (p < 200) return 1;
+    if (p < 500) return 1.5;
+    if (p < 700) return 2;
+    return 3;
+  }
+
+  // NORMAL USER PRICING
+  if (p < 100) return 1;
+  if (p < 200) return 2;
+  if (p < 500) return 3;
+  if (p < 700) return 4;
+  return 7;
 };
 
 export async function GET(req, context) {
-  const { slug } = await context.params;
+  const { slug } =await  context.params;
 
   try {
     /* ================= OPTIONAL JWT ================= */
-    let userType = "user"; // 👈 default if no JWT
+    let userType = "user"; // default
 
     const authHeader = req.headers.get("authorization");
     console.log("Auth Header:", authHeader);
@@ -31,14 +48,10 @@ export async function GET(req, context) {
           userId: decoded.userId,
           userType,
         });
-      } catch (err) {
-        // Invalid token → fallback to normal user pricing
-        console.log("Invalid JWT received, using user pricing");
+      } catch {
+        console.log("Invalid JWT → using user pricing");
       }
     }
-
-    const markupPercent = getMarkupPercent(userType);
-    console.log(`💰 Pricing for ${userType}: +${markupPercent}%`);
 
     /* ================= FETCH GAME ================= */
     const response = await fetch(
@@ -57,9 +70,10 @@ export async function GET(req, context) {
       return NextResponse.json(data);
     }
 
-    /* ================= APPLY PRICE MARKUP ================= */
+    /* ================= APPLY DYNAMIC MARKUP ================= */
     data.data.itemId = data.data.itemId.map((item) => {
       const basePrice = Number(item.sellingPrice);
+      const markupPercent = getMarkupPercentByPrice(userType, basePrice);
 
       const finalPrice =
         markupPercent === 0
@@ -69,6 +83,12 @@ export async function GET(req, context) {
       return {
         ...item,
         sellingPrice: finalPrice,
+        // Optional debug info (remove later if not needed)
+        _pricing: {
+          basePrice,
+          markupPercent,
+          userType,
+        },
       };
     });
 

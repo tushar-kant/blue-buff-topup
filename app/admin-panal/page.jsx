@@ -1,5 +1,8 @@
+
+import AuthGuard from "@/components/AuthGuard";
 export default function AdminPanalPage() {
   return (
+    <AuthGuard>
     <section className="min-h-screen flex items-center justify-center bg-[var(--background)] text-[var(--foreground)] px-6">
       <div className="text-center bg-[var(--card)] border border-[var(--border)] rounded-2xl p-10 shadow-lg max-w-lg w-full">
         
@@ -19,5 +22,6 @@ export default function AdminPanalPage() {
 
       </div>
     </section>
+    </AuthGuard>
   );
 }
