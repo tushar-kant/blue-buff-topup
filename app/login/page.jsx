@@ -170,7 +170,6 @@ export default function AuthPage() {
               {errors.user && <p className="text-red-500 text-sm mt-1">{errors.user}</p>}
             </div>
 
-            {/* Password */}
             <div>
               <input
                 type="password"
