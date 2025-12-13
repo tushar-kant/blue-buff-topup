@@ -57,6 +57,7 @@ export default function AuthPage() {
     localStorage.setItem("email", data.user.email);
     localStorage.setItem("phone", data.user.phone);
     localStorage.setItem("userId", data.user.userId);
+    localStorage.setItem("userType", data.user.userType);
 
     setSuccess("Login successful! Redirecting...");
     setTimeout(() => (window.location.href = "/"), 1000);

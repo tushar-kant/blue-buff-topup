@@ -60,7 +60,7 @@ export default function GameBannerCarousel() {
     return (
       <div className="w-full max-w-5xl mx-auto mt-6">
         <div className="h-[180px] md:h-[260px] rounded-2xl bg-[var(--card)]/40 flex items-center justify-center">
-          <span className="text-[var(--muted)]">Loading banners...</span>
+          <span className="text-[var(--muted)]">Loading ...</span>
         </div>
       </div>
     );

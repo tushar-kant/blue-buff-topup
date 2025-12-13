@@ -41,6 +41,7 @@ export async function POST(request) {
           userId: foundUser.userId,
           createdAt: foundUser.createdAt,
           updatedAt: foundUser.updatedAt,
+          userType: foundUser.userType,
         },
       },
       { status: 200 }

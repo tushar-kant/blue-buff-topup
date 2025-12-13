@@ -37,6 +37,7 @@ export async function POST(request) {
           wallet: foundUser.wallet,
           order: foundUser.order,
           userId: foundUser.userId,
+          userType: foundUser.userType,
         },
       },
       { status: 200 }
