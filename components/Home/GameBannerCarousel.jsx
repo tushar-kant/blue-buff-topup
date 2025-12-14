@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import logo from "@/public/logo.png";
+import Loader from "@/components/Loader/Loader";
 
 export default function GameBannerCarousel() {
   const [banners, setBanners] = useState([]);
@@ -58,11 +59,7 @@ export default function GameBannerCarousel() {
 
   if (loading)
     return (
-      <div className="w-full max-w-5xl mx-auto mt-6">
-        <div className="h-[180px] md:h-[260px] rounded-2xl bg-[var(--card)]/40 flex items-center justify-center">
-          <span className="text-[var(--muted)]">Loading ...</span>
-        </div>
-      </div>
+    <Loader/>
     );
 
   if (!banners?.length) return null;

@@ -15,11 +15,12 @@ export default function BuyFlowPage() {
   const [playerId, setPlayerId] = useState("");
   const [zoneId, setZoneId] = useState("");
   const [reviewData, setReviewData] = useState(null);
-  const [paymentMethod, setPaymentMethod] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState("upi");
   const [showSuccess, setShowSuccess] = useState(false);
   const [userEmail, setUserEmail] = useState("");
   const [userPhone, setUserPhone] = useState("");
   const [walletBalance, setWalletBalance] = useState(0);
+const [loading, setLoading] = useState(false);
 
   // Load user data
   useEffect(() => {
@@ -41,6 +42,8 @@ export default function BuyFlowPage() {
       alert("Please enter Player ID and Zone ID");
       return;
     }
+      setLoading(true);
+
 
     const res = await fetch("/api/check-region", {
       method: "POST",
@@ -68,6 +71,9 @@ export default function BuyFlowPage() {
       playerId,
       zoneId,
     });
+   
+    setLoading(false);
+  
 
     setStep(2);
   };
@@ -137,6 +143,8 @@ export default function BuyFlowPage() {
                 zoneId={zoneId}
                 setZoneId={setZoneId}
                 onValidate={handleValidate}
+                loading={loading} // 👈 PASS HERE
+
               />
             )}
 

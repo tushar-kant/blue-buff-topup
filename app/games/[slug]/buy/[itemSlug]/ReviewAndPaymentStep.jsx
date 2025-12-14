@@ -24,6 +24,8 @@ export default function ReviewAndPaymentStep({
   itemSlug,
 }) {
   const [upiQR, setUpiQR] = useState("");
+  const [isRedirecting, setIsRedirecting] = useState(false);
+
 
   // Generate UPI QR
   const handleUPI = async () => {
@@ -44,47 +46,54 @@ const handleProceed = async () => {
     return;
   }
 
-  const userId = localStorage.getItem("userId");
-  const storedPhone = userPhone || localStorage.getItem("phone");
+  setIsRedirecting(true); // 🔑 start loading
 
-  if (!storedPhone) {
-    alert("Phone number missing. Please log in again.");
-    return;
+  try {
+    const userId = localStorage.getItem("userId");
+    const storedPhone = userPhone || localStorage.getItem("phone");
+
+    if (!storedPhone) {
+      alert("Phone number missing. Please log in again.");
+      setIsRedirecting(false);
+      return;
+    }
+
+    const orderPayload = {
+      gameSlug: slug,
+      itemSlug,
+      itemName,
+      playerId: reviewData.playerId,
+      zoneId: reviewData.zoneId,
+      paymentMethod,
+      price: totalPrice,
+      email: userEmail || null,
+      phone: storedPhone,
+      userId: userId || null,
+      currency: "INR",
+    };
+
+    const res = await fetch("/api/order/create-gateway-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(orderPayload),
+    });
+
+    const data = await res.json();
+
+    if (!data.success) {
+      alert("Order failed: " + data.message);
+      setIsRedirecting(false);
+      return;
+    }
+
+    localStorage.setItem("pending_topup_order", data.orderId);
+
+    // 🚀 redirect
+    window.location.href = data.paymentUrl;
+  } catch (err) {
+    alert("Something went wrong. Please try again.");
+    setIsRedirecting(false);
   }
-
-  // Payload to backend
-  const orderPayload = {
-    gameSlug: slug,
-    itemSlug,
-    itemName,
-    playerId: reviewData.playerId,
-    zoneId: reviewData.zoneId,
-    paymentMethod,
-    price: totalPrice,
-    email: userEmail || null,
-    phone: storedPhone,
-    userId: userId || null,    // REQUIRED
-    currency: "INR",           // your backend supports this now
-  };
-
-  const res = await fetch("/api/order/create-gateway-order", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(orderPayload),
-  });
-
-  const data = await res.json();
-
-  if (!data.success) {
-    alert("Order failed: " + data.message);
-    return;
-  }
-
-  // Save the orderId for verification step
-  localStorage.setItem("pending_topup_order", data.orderId);
-
-  // Redirect user to real payment URL
-  window.location.href = data.paymentUrl;
 };
 
 
@@ -194,12 +203,22 @@ const handleProceed = async () => {
             <button
               onClick={handleProceed}
               disabled={
+                 isRedirecting ||
                 !paymentMethod ||
                 (paymentMethod === "wallet" && walletBalance < totalPrice)
               }
-              className="bg-[var(--accent)] text-black p-3 rounded-lg w-full mt-4 font-semibold disabled:opacity-50"
-            >
-              Proceed to Pay
+              className="
+    bg-[var(--accent)] text-black p-3 rounded-lg w-full mt-4 font-semibold
+    disabled:opacity-50 flex items-center justify-center gap-2
+  "            >
+             {isRedirecting ? (
+    <>
+      <span className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
+      Redirecting…
+    </>
+  ) : (
+    "Proceed to Pay"
+  )}
             </button>
           </div>
         </>
