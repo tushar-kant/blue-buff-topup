@@ -180,7 +180,6 @@ const handleProceed = async () => {
 
             {/* UPI Button */}
             <button
-            disabled
               onClick={handleUPI}
               className={`w-full mt-3 p-3 rounded-lg border text-left ${
                 paymentMethod === "upi"
