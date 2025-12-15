@@ -109,6 +109,12 @@ export async function POST(req: Request) {
     // ----------------------------------
     // SAVE GAME API RESPONSE
     // ----------------------------------
+   const isTopupSuccess =
+  gameResp.ok &&
+  (gameData?.success === true ||
+   gameData?.status === true ||
+   gameData?.result?.status === "SUCCESS");
+
     order.externalResponse = gameData;
     await order.save();
 
@@ -118,6 +124,13 @@ export async function POST(req: Request) {
       topupResponse: gameData,
     });
 
+
+    
+    if (isTopupSuccess) {
+  order.topup = "success";   // ✅ TOPUP SUCCESS
+} else {
+  order.topup = "failed";    // ❌ TOPUP FAILED
+}
   } catch (error: any) {
     console.error("Verify error:", error);
     return NextResponse.json(

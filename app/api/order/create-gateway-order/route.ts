@@ -54,6 +54,7 @@ export async function POST(req: Request) {
       phone: phone || null,
       currency,
       status: "pending",  // lowercase standard
+      topup: "pending",
       expiresAt,
     });
 
