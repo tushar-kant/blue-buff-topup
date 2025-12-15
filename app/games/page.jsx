@@ -16,7 +16,7 @@ export default function GamesPage() {
   const [hideOOS, setHideOOS] = useState(false);
 
   /* ================= CONFIG ================= */
-  const SPECIAL_MLBB_GAME = "MLBB SMALL/PHP";
+  const SPECIAL_MLBB_GAME = "MLBB SMALL";
 
   const outOfStockGames = [
     "PUBG Mobile",

@@ -50,7 +50,7 @@ export async function GET() {
   },
   {
     bannerImage:
-      "https://res.cloudinary.com/dk0sslz1q/image/upload/v1765619176/generated-image_35_mixdtz.png",
+      "https://res.cloudinary.com/dk0sslz1q/image/upload/v1765781407/Untitled349_2025102715224_vebykq.jpg",
     bannerFrom: "Blue Buff",
     bannerLink: "https://bluebuff.com",
     bannerTitle: "Instant Game Top-Ups",
@@ -64,7 +64,7 @@ export async function GET() {
   },
   {
     bannerImage:
-      "https://res.cloudinary.com/dk0sslz1q/image/upload/v1765619191/ideogram-v3.0_A_high-quality_horizontal_rectangular_website_banner_for_a_gaming_top-up_website-0_2_rgpuck.png",
+      "https://res.cloudinary.com/dk0sslz1q/image/upload/v1765781582/Untitled349_2025102715450_xsoicx.jpg",
     bannerFrom: "Blue Buff",
     bannerLink: "https://bluebuff.com",
     bannerTitle: "Cheapest MLBB Diamonds",
