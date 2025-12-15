@@ -107,7 +107,7 @@ export default function BlueBuffLoader() {
                     textShadow: "0 2px 10px rgba(0,0,0,0.6)",
                   }}
                 >
-                  BB
+                  MJ
                 </span>
               </div>
             </div>

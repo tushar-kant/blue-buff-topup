@@ -8,6 +8,7 @@ import {
   FaHeart,
   FaYoutube,
 } from "react-icons/fa6";
+const BRAND_NAME = process.env.NEXT_PUBLIC_BRAND_NAME || "MewJi";
 
 export default function Footer() {
   return (
@@ -18,15 +19,20 @@ export default function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
           
           {/* Logo + Description */}
-          <div className="col-span-2 md:col-span-1">
-            <h2 className="text-xl sm:text-2xl font-extrabold mb-2 bg-gradient-to-r from-[var(--accent)] to-purple-500 bg-clip-text text-transparent">
-              Blue<span className="text-[var(--foreground)]"> BUFF</span>
-            </h2>
-            <p className="text-xs leading-relaxed max-w-[220px]">
-              MLBB wallpapers, esports updates, hero showcases,  
-              and events — everything for Mobile Legends fans ⚡
-            </p>
-          </div>
+        <div className="col-span-2 md:col-span-1">
+  <h2 className="text-xl sm:text-2xl font-extrabold mb-2 bg-gradient-to-r from-[var(--accent)] to-purple-500 bg-clip-text text-transparent">
+    {BRAND_NAME.slice(0, 3)}
+    <span className="text-[var(--foreground)]">
+      {BRAND_NAME.slice(3)}
+    </span>
+  </h2>
+
+  <p className="text-xs leading-relaxed max-w-[220px]">
+    Fast, secure MLBB top-ups with instant delivery and 24×7 support —
+    recharge diamonds in seconds.
+  </p>
+</div>
+
 
           {/* Quick Navigation */}
           <div className="flex flex-col gap-1.5">
@@ -158,11 +164,20 @@ export default function Footer() {
             </div>
 
             {/* Made By */}
-            <p className="text-[10px] sm:text-xs text-center sm:text-left order-first sm:order-none">
-              Made with{" "}
-              <FaHeart className="inline w-3 h-3 text-[var(--accent)] mx-0.5 animate-pulse" />{" "}
-              by <span className="text-[var(--accent)] font-medium">Blue Buff</span>
-            </p>
+        <p className="text-[10px] sm:text-xs text-center sm:text-left order-first sm:order-none">
+  Made with{" "}
+  <FaHeart className="inline w-3 h-3 text-[var(--accent)] mx-0.5 animate-pulse" />{" "}
+  by{" "}
+  <a
+    href="https://wa.me/916372305866"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="text-[var(--accent)] font-medium hover:underline"
+  >
+    Blue Buff
+  </a>
+</p>
+
 
             {/* Copyright */}
             <p className="text-[10px] sm:text-xs">

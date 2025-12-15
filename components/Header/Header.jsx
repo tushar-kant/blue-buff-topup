@@ -5,6 +5,9 @@ import { useState, useEffect, useRef } from "react";
 import ThemeToggle from "../ThemeToggle/ThemeToggle";
 import { FiPlus } from "react-icons/fi";
 import { FaUser } from "react-icons/fa";
+import Image from "next/image";
+import logo from "@/public/logo.png"; // adjust path if needed
+
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -73,15 +76,21 @@ export default function Header() {
           : "bg-transparent"
       }`}
     >
-      <div className="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
+<div className="max-w-6xl mx-auto flex items-center justify-between px-1 h-16">
 
         {/* LOGO */}
-        <Link href="/" className="text-2xl font-bold flex items-center gap-1">
-          <span className="text-[var(--accent)]">Blue</span>
-          <span className="animated-underline text-[var(--foreground)]">
-            Buff
-          </span>
-        </Link>
+<Link href="/" className="flex items-center">
+  <Image
+    src={logo}
+    alt="Blue Buff Logo"
+    width={140}
+    height={40}
+    priority
+    className="object-contain"
+  />
+</Link>
+
+
 
         {/* DESKTOP NAV */}
         <nav className="hidden md:flex items-center space-x-6 text-[var(--muted)]">

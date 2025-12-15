@@ -1,108 +1,49 @@
+import { FaWhatsapp } from "react-icons/fa";
+
 export default function HomeServices() {
   return (
-    <section className="py-20 px-6 bg-[var(--background)] text-[var(--foreground)]">
+    <section className="py-16 px-6 bg-[var(--background)] text-[var(--foreground)]">
       <div className="max-w-6xl mx-auto">
 
-        {/* Section Heading */}
-        <div className="text-center mb-14">
-          <h2 className="text-3xl md:text-4xl font-extrabold mb-4">
-            We Also Offer 🚀
-          </h2>
-          <p className="text-[var(--muted)] text-lg max-w-2xl mx-auto">
-            Want to start your own game topup business?  
-            We provide complete reseller & website solutions at the cheapest rates.
-          </p>
-        </div>
+        <div className="relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] shadow-md">
+          <div className="absolute left-0 top-0 h-full w-2 bg-[var(--accent)]" />
 
-        {/* Services Grid */}
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 p-6 md:p-8">
 
-          {/* Reseller */}
-          <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 shadow-md hover:shadow-lg transition">
-            <h3 className="text-xl font-bold mb-2">
-              Be a Reseller
-            </h3>
+            <div>
+              <h3 className="text-lg md:text-xl font-bold mb-1">
+                Website Designed, Developed & Maintained By
+              </h3>
+              <p className="text-[var(--muted)] text-sm md:text-base">
+                Complete end-to-end website solution including development,
+                deployment, updates, and ongoing maintenance.
+              </p>
+            </div>
 
-            <p className="text-[var(--muted)] mb-4">
-              Become a reseller and start selling game topups instantly.
-              Cheapest rates in the market with high profit margins.
-            </p>
-
-            <div className="flex items-center justify-between">
-              <span className="text-sm px-3 py-1 rounded-full bg-green-500/10 text-green-400 border border-green-500/30">
-                Cheapest
+            <div className="flex flex-col items-start md:items-end gap-2">
+              <span className="text-xl font-bold text-[var(--accent)] tracking-wide">
+                +91 63723 05866
               </span>
 
               <a
                 href="https://wa.me/916372305866"
                 target="_blank"
-                className="text-[var(--accent)] font-semibold hover:underline"
+                rel="noopener noreferrer"
+                className="
+                  inline-flex items-center gap-2
+                  px-4 py-2 rounded-xl
+                  bg-[var(--accent)]
+                  !text-white
+                  font-semibold text-sm
+                  hover:brightness-110 transition
+                "
               >
-                Contact on WhatsApp →
+                <FaWhatsapp className="text-lg fill-current" />
+                Get This Service
               </a>
             </div>
+
           </div>
-
-          {/* Whitelabel */}
-          <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 shadow-md hover:shadow-lg transition">
-            <h3 className="text-xl font-bold mb-2">
-              Website Whitelabel
-            </h3>
-
-            <p className="text-[var(--muted)] mb-4">
-              Launch your own branded topup website.
-              Cheapest whitelabel solution with full control and support.
-            </p>
-
-            <div className="flex items-center justify-between">
-              <span className="text-sm px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/30">
-                Available
-              </span>
-
-              <a
-                href="https://wa.me/916372305866"
-                target="_blank"
-                className="text-[var(--accent)] font-semibold hover:underline"
-              >
-                Contact on WhatsApp →
-              </a>
-            </div>
-          </div>
-
-          {/* Custom Website */}
-          <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 shadow-md hover:shadow-lg transition">
-            <h3 className="text-xl font-bold mb-2">
-              Custom Topup Website
-            </h3>
-
-            <p className="text-[var(--muted)] mb-4">
-              Need a fully custom topup platform with unique features?
-              We build scalable and secure solutions tailored to your business.
-            </p>
-
-            <div className="flex items-center justify-between">
-              <span className="text-sm px-3 py-1 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/30">
-                Available
-              </span>
-
-              <a
-                href="https://wa.me/916372305866"
-                target="_blank"
-                className="text-[var(--accent)] font-semibold hover:underline"
-              >
-                Contact on WhatsApp →
-              </a>
-            </div>
-          </div>
-
-        </div>
-
-        {/* Footer CTA */}
-        <div className="text-center mt-14">
-          <p className="text-[var(--muted)]">
-            Interested in any of these services?  
-            <span className="text-[var(--accent)] font-medium"> Contact us on WhatsApp</span> and get started today.
-          </p>
         </div>
 
       </div>

@@ -36,7 +36,7 @@ export async function GET() {
     data: [
   {
     bannerImage:
-      "https://res.cloudinary.com/dk0sslz1q/image/upload/v1765619209/ideogram-v3.0_A_high-quality_horizontal_rectangular_website_banner_for_a_gaming_top-up_platfor-0_1_ckhsxa.png",
+      "https://res.cloudinary.com/dk0sslz1q/image/upload/v1765779743/Black_and_white_Geometric_Gamming_Channel_Youtube_Banner_20251105_145858_0000_1_ovbjb7.png",
     bannerFrom: "Blue Buff",
     bannerLink: "https://bluebuff.com",
     bannerTitle: "Blue Buff – MLBB Diamond Top-Up",
