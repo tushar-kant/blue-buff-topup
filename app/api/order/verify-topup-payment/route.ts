@@ -61,6 +61,7 @@ export async function POST(req: Request) {
 
     if (!isSuccess) {
       order.status = "failed";
+       order.paymentStatus = "failed";
       await order.save();
 
       return NextResponse.json({
@@ -72,7 +73,9 @@ export async function POST(req: Request) {
     // ----------------------------------
     // PAYMENT SUCCESS
     // ----------------------------------
-    order.status = "success";
+    // order.status = "success";
+        order.paymentStatus = "success";
+
     order.gatewayResponse = data; // Store full raw API response
     await order.save();
 
@@ -111,13 +114,20 @@ export async function POST(req: Request) {
     // ----------------------------------
     // SAVE GAME API RESPONSE
     // ----------------------------------
-  //  const isTopupSuccess =
-  // gameResp.ok &&
-  // (gameData?.success === true ||
-  //  gameData?.status === true ||
-  //  gameData?.result?.status === "SUCCESS");
+const topupSuccess =
+      gameResp.ok &&
+      (gameData?.success === true ||
+        gameData?.status === true ||
+        gameData?.result?.status === "SUCCESS");
 
     order.externalResponse = gameData;
+      if (topupSuccess) {
+      order.topupStatus = "success";
+      order.status = "success"; // ✅ FINAL SUCCESS
+    } else {
+      order.topupStatus = "failed";
+      order.status = "failed";
+    }
     await order.save();
 
     return NextResponse.json({
