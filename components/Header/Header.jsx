@@ -142,6 +142,20 @@ export default function Header() {
                   >
                     Dashboard
                   </Link>
+                      <Link
+                    href="/dashboard"
+                    className="block py-2 hover:text-[var(--accent)]"
+                    onClick={() => setUserMenuOpen(false)}
+                  >
+                    Customer Support
+                  </Link>
+                    <Link
+                    href="/dashboard"
+                    className="block py-2 hover:text-[var(--accent)]"
+                    onClick={() => setUserMenuOpen(false)}
+                  >
+                   Account Settings
+                  </Link>
 
                   {/* ADMIN / OWNER */}
                   {( user.userType === "owner") && (
