@@ -2,30 +2,35 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { FaXTwitter, FaInstagram, FaDiscord, FaYoutube, FaHeart, FaShareNodes } from "react-icons/fa6";
+import {
+  FaWhatsapp,
+  FaInstagram,
+  FaYoutube,
+  FaHeart,
+  FaShareNodes,
+} from "react-icons/fa6";
 
 const socialLinks = [
   {
-    name: "Twitter",
-    icon: FaXTwitter,
-    url: "https://www.instagram.com/zynx.v1/",
-    color: "hover:bg-black hover:text-white",
+    name: "WhatsApp",
+    icon: FaWhatsapp,
+    url: "https://wa.me/919366077306",
+    color: "hover:bg-green-500 hover:text-white",
   },
   {
     name: "Instagram",
     icon: FaInstagram,
-    url: "https://www.instagram.com/zynx.v1/",
-    color: "hover:bg-gradient-to-br hover:from-purple-600 hover:to-pink-500 hover:text-white",
+    url: "https://www.instagram.com/meowjiofficial.mlbb?igsh=a3ZnOXBkNmY2ZDQ0",
+    color:
+      "hover:bg-gradient-to-br hover:from-purple-600 hover:to-pink-500 hover:text-white",
   },
-
   {
     name: "YouTube",
     icon: FaYoutube,
-    url: "https://www.instagram.com/zynx.v1/",
+    url: "https://www.youtube.com/@whoisfinalboss",
     color: "hover:bg-red-600 hover:text-white",
   },
 ];
-
 export default function SocialFloat() {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -49,8 +54,8 @@ export default function SocialFloat() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "ZynxAnime",
-          text: "Check out ZynxAnime - Free Anime Wallpapers & Live Backgrounds!",
+          title: "Meowji Official",
+          text: "Check out this awesome site!",
           url: window.location.href,
         });
       } catch (err) {

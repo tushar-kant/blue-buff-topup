@@ -16,6 +16,9 @@ export default function AuthPage() {
   const [errors, setErrors] = useState({});
   const [success, setSuccess] = useState("");
 
+  const [loggingIn, setLoggingIn] = useState(false);
+  const [registering, setRegistering] = useState(false);
+
   /* ---------- VALIDATION HELPERS ---------- */
   const isGmail = (email) => /^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(email);
   const isPhone = (phone) => /^[0-9]{10}$/.test(phone);
@@ -36,28 +39,37 @@ export default function AuthPage() {
       return;
     }
 
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(loginData),
-    });
+    setLoggingIn(true);
+    setErrors({});
+    setSuccess("");
 
-    const data = await res.json();
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(loginData),
+      });
 
-    if (!data.success) {
-      setErrors({ user: data.message });
-      return;
+      const data = await res.json();
+
+      if (!data.success) {
+        setErrors({ user: data.message });
+        return;
+      }
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("userName", data.user.name);
+      localStorage.setItem("email", data.user.email);
+      localStorage.setItem("phone", data.user.phone);
+      localStorage.setItem("userId", data.user.userId);
+
+      setSuccess("Login successful! Redirecting...");
+      setTimeout(() => (window.location.href = "/"), 1000);
+    } catch {
+      setErrors({ user: "Something went wrong. Try again." });
+    } finally {
+      setLoggingIn(false);
     }
-
-    /* ================= SAVE SAFE DATA ONLY ================= */
-    localStorage.setItem("token", data.token); // 🔐 JWT (source of truth)
-    localStorage.setItem("userName", data.user.name);
-    localStorage.setItem("email", data.user.email);
-    localStorage.setItem("phone", data.user.phone);
-    localStorage.setItem("userId", data.user.userId);
-
-    setSuccess("Login successful! Redirecting...");
-    setTimeout(() => (window.location.href = "/"), 1000);
   };
 
   /* ======================================================
@@ -87,21 +99,31 @@ export default function AuthPage() {
       return;
     }
 
-    const res = await fetch("/api/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(regData),
-    });
+    setRegistering(true);
+    setErrors({});
+    setSuccess("");
 
-    const data = await res.json();
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(regData),
+      });
 
-    if (!data.success) {
-      setErrors({ email: data.message });
-      return;
+      const data = await res.json();
+
+      if (!data.success) {
+        setErrors({ email: data.message });
+        return;
+      }
+
+      setSuccess("Account created! Please log in.");
+      setTab("login");
+    } catch {
+      setErrors({ email: "Registration failed. Try again." });
+    } finally {
+      setRegistering(false);
     }
-
-    setSuccess("Account created! Please log in.");
-    setTab("login");
   };
 
   return (
@@ -153,7 +175,8 @@ export default function AuthPage() {
             <input
               type="text"
               placeholder="Email or Phone"
-              className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)]"
+              disabled={loggingIn}
+              className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)] disabled:opacity-50"
               value={loginData.user}
               onChange={(e) =>
                 setLoginData({ ...loginData, user: e.target.value })
@@ -166,7 +189,8 @@ export default function AuthPage() {
             <input
               type="password"
               placeholder="Password"
-              className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)]"
+              disabled={loggingIn}
+              className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)] disabled:opacity-50"
               value={loginData.password}
               onChange={(e) =>
                 setLoginData({ ...loginData, password: e.target.value })
@@ -178,9 +202,14 @@ export default function AuthPage() {
 
             <button
               onClick={handleLogin}
-              className="w-full py-3 rounded-lg bg-[var(--accent)] text-white font-semibold"
+              disabled={loggingIn}
+              className={`w-full py-3 rounded-lg font-semibold ${
+                loggingIn
+                  ? "bg-gray-500 cursor-not-allowed"
+                  : "bg-[var(--accent)] text-white"
+              }`}
             >
-              Login
+              {loggingIn ? "Logging in..." : "Login"}
             </button>
           </div>
         )}
@@ -191,7 +220,8 @@ export default function AuthPage() {
             <input
               type="text"
               placeholder="Full Name"
-              className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)]"
+              disabled={registering}
+              className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)] disabled:opacity-50"
               value={regData.name}
               onChange={(e) =>
                 setRegData({ ...regData, name: e.target.value })
@@ -204,7 +234,8 @@ export default function AuthPage() {
             <input
               type="email"
               placeholder="Gmail Address"
-              className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)]"
+              disabled={registering}
+              className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)] disabled:opacity-50"
               value={regData.email}
               onChange={(e) =>
                 setRegData({ ...regData, email: e.target.value })
@@ -218,7 +249,8 @@ export default function AuthPage() {
               type="text"
               placeholder="Phone Number"
               maxLength={10}
-              className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)]"
+              disabled={registering}
+              className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)] disabled:opacity-50"
               value={regData.phone}
               onChange={(e) =>
                 setRegData({ ...regData, phone: e.target.value })
@@ -231,7 +263,8 @@ export default function AuthPage() {
             <input
               type="password"
               placeholder="Password (min 6 characters)"
-              className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)]"
+              disabled={registering}
+              className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)] disabled:opacity-50"
               value={regData.password}
               onChange={(e) =>
                 setRegData({ ...regData, password: e.target.value })
@@ -243,9 +276,14 @@ export default function AuthPage() {
 
             <button
               onClick={handleRegister}
-              className="w-full py-3 rounded-lg bg-[var(--accent)] text-white font-semibold"
+              disabled={registering}
+              className={`w-full py-3 rounded-lg font-semibold ${
+                registering
+                  ? "bg-gray-500 cursor-not-allowed"
+                  : "bg-[var(--accent)] text-white"
+              }`}
             >
-              Create Account
+              {registering ? "Creating account..." : "Create Account"}
             </button>
           </div>
         )}

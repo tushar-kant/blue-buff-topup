@@ -5,12 +5,13 @@ import { FaWhatsapp } from "react-icons/fa";
 import { FiX } from "react-icons/fi";
 
 const STORAGE_KEY = "hide_whatsapp_banner";
+const WHATSAPP_CHANNEL_URL =
+  "https://whatsapp.com/channel/0029Vb6hFflB4hdQnstejY05";
 
 export default function TopNoticeBanner() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    // session-based hide
     const hidden = sessionStorage.getItem(STORAGE_KEY);
     if (!hidden) setVisible(true);
   }, []);
@@ -19,8 +20,11 @@ export default function TopNoticeBanner() {
 
   return (
     <div
+      onClick={() =>
+        window.open(WHATSAPP_CHANNEL_URL, "_blank", "noopener,noreferrer")
+      }
       className="
-        w-full
+        w-full cursor-pointer
         bg-gradient-to-r
         from-[var(--accent)]
         via-[var(--accent-secondary)]
@@ -31,58 +35,43 @@ export default function TopNoticeBanner() {
       "
     >
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-        
         {/* Left */}
         <div className="flex items-center gap-3">
-          <div
-            className="
-              rounded-full p-2
-              bg-green-500/90
-              text-white
-              shadow
-            "
-          >
+          <div className="rounded-full p-2 bg-green-500/90 text-white shadow">
             <FaWhatsapp size={18} />
           </div>
 
           <div className="leading-tight">
             <p className="font-semibold text-sm md:text-base">
-              Join our WhatsApp Group
+              Join our WhatsApp Channel
             </p>
             <p className="text-xs md:text-sm text-[var(--muted)]">
-              Get instant offers, updates & support
+              Get instant offers, updates & announcements
             </p>
           </div>
         </div>
 
         {/* Right */}
         <div className="flex items-center gap-3">
-          <a
-            href="https://wa.me/916372305866"
-            target="_blank"
-            rel="noopener noreferrer"
+          <span
             className="
               hidden sm:inline-flex items-center
               bg-white/90 text-black
               px-4 py-1.5 rounded-full
               text-sm font-semibold
-              hover:bg-white transition
               shadow-sm
             "
           >
-            Join Now
-          </a>
+            Join Channel
+          </span>
 
           <button
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               sessionStorage.setItem(STORAGE_KEY, "true");
               setVisible(false);
             }}
-            className="
-              rounded-full p-1
-              hover:bg-black/10
-              transition
-            "
+            className="rounded-full p-1 hover:bg-black/10 transition"
             aria-label="Close"
           >
             <FiX size={18} />

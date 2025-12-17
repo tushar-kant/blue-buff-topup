@@ -33,50 +33,51 @@ export async function GET() {
       statusCode: 200,
       success: true,
       message: "All banners retrieved",
-    data: [
+data: [
   {
     bannerImage:
       "https://res.cloudinary.com/dk0sslz1q/image/upload/v1765779743/Black_and_white_Geometric_Gamming_Channel_Youtube_Banner_20251105_145858_0000_1_ovbjb7.png",
-    bannerFrom: "Blue Buff",
-    bannerLink: "https://bluebuff.com",
-    bannerTitle: "Blue Buff – MLBB Diamond Top-Up",
-    bannerSlug: "blue-buff-mlbb-diamond-topup",
+    bannerFrom: "Meow Ji Store",
+    bannerLink: "https://meowji.store",
+    bannerTitle: "Meow Ji Store – MLBB Diamond Top-Up",
+    bannerSlug: "meowji-mlbb-diamond-topup",
     gameId: ["mlbb"],
     bannerDate: "2025-04-30T00:00:00.000Z",
     bannerSummary:
-      "Your one-stop MLBB top-up destination. Get affordable Diamonds 💎 with instant delivery and trusted service.",
+      "Your trusted MLBB top-up store. Get Diamonds 💎 instantly with secure payments and fast delivery.",
     isShow: true,
     __v: 0,
   },
   {
     bannerImage:
       "https://res.cloudinary.com/dk0sslz1q/image/upload/v1765781407/Untitled349_2025102715224_vebykq.jpg",
-    bannerFrom: "Blue Buff",
-    bannerLink: "https://bluebuff.com",
+    bannerFrom: "Meow Ji Store",
+    bannerLink: "https://meowji.store",
     bannerTitle: "Instant Game Top-Ups",
-    bannerSlug: "blue-buff-instant-game-topups",
+    bannerSlug: "meowji-instant-game-topups",
     gameId: [],
     bannerDate: "2025-04-29T00:00:00.000Z",
     bannerSummary:
-      "Top up your favorite games instantly with secure payments and fast processing.",
+      "Instant top-ups for popular games with safe checkout and automated delivery.",
     isShow: true,
     __v: 0,
   },
   {
     bannerImage:
       "https://res.cloudinary.com/dk0sslz1q/image/upload/v1765781582/Untitled349_2025102715450_xsoicx.jpg",
-    bannerFrom: "Blue Buff",
-    bannerLink: "https://bluebuff.com",
-    bannerTitle: "Cheapest MLBB Diamonds",
-    bannerSlug: "blue-buff-cheapest-mlbb-diamonds",
+    bannerFrom: "Meow Ji Store",
+    bannerLink: "https://meowji.store",
+    bannerTitle: "Affordable MLBB Diamonds",
+    bannerSlug: "meowji-affordable-mlbb-diamonds",
     gameId: ["mlbb"],
     bannerDate: "2025-04-29T00:00:00.000Z",
     bannerSummary:
-      "Lowest prices on MLBB Diamonds with 24/7 automatic instant support.",
+      "Best prices on MLBB Diamonds with 24/7 automated delivery and instant support.",
     isShow: true,
     __v: 0,
   },
 ]
+
 
     };
 

@@ -6,8 +6,9 @@ import SocialFloat from "@/components/SocialFloat/SocialFloat";
 import { GoogleAnalytics } from '@next/third-parties/google'
 
 export const metadata: Metadata = {
-  title: "Zynx Wallpapers | Anime PFPs & Wallpapers",
-  description: "Free anime wallpapers and PFPs. High quality, fast, and aesthetic.",
+  title: "Mewji – MLBB Diamond Top Up | Instant & Secure",
+  description:     "Mewji is a fast and secure Mobile Legends (MLBB) diamond top-up platform. Instant delivery, safe payments, and 24/7 automated service.",
+
 };
 
 export default function RootLayout({

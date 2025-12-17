@@ -2,19 +2,15 @@
 import HomeSection from "@/components/Home/Home";
 
 export const metadata = {
-  title: "ZynxAnime - Free Anime Wallpapers & Live Backgrounds",
+  title: "Mewji – MLBB Diamond Top Up | Instant & Secure",
   description:
-    "Discover high-quality anime wallpapers, live backgrounds, and PFPs from popular anime like Naruto, One Piece, Demon Slayer, and more — all free to download.",
+    "Mewji is a fast and secure Mobile Legends (MLBB) diamond top-up platform. Instant delivery, safe payments, and 24/7 automated service.",
   keywords: [
-    "anime wallpapers",
-    "live anime backgrounds",
-    "anime PFP",
-    "ZynxAnime",
-    "Naruto wallpaper",
-    "One Piece wallpaper",
-    "Demon Slayer wallpaper",
-    "Attack on Titan wallpaper",
-    "anime 4K wallpapers",
+ "MLBB top up",
+    "buy MLBB diamonds",
+    "Mobile Legends recharge",
+    "Mewji top up",
+
   ],
 };
 

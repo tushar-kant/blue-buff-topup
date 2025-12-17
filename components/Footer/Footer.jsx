@@ -7,6 +7,7 @@ import {
   FaDiscord,
   FaHeart,
   FaYoutube,
+  FaWhatsapp,
 } from "react-icons/fa6";
 const BRAND_NAME = process.env.NEXT_PUBLIC_BRAND_NAME || "MewJi";
 
@@ -131,37 +132,41 @@ export default function Footer() {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
 
             {/* Social Icons - Mobile */}
-            <div className="flex md:hidden items-center gap-4">
-              <a
-                href="https://instagram.com/zynx.v1"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-[var(--accent)] hover:scale-110 transition-all"
-                aria-label="Instagram"
-              >
-                <FaInstagram className="w-4 h-4" />
-              </a>
+         <div className="flex md:hidden items-center gap-4">
+  {/* Instagram */}
+  <a
+    href="https://www.instagram.com/meowjiofficial.mlbb?igsh=a3ZnOXBkNmY2ZDQ0"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="hover:text-[var(--accent)] hover:scale-110 transition-all"
+    aria-label="Instagram"
+  >
+    <FaInstagram className="w-4 h-4" />
+  </a>
 
-              <a
-                href="https://instagram.com/zynx.v1"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-[var(--accent)] hover:scale-110 transition-all"
-                aria-label="Twitter"
-              >
-                <FaXTwitter className="w-4 h-4" />
-              </a>
+  {/* WhatsApp */}
+  <a
+    href="https://wa.me/919366077306"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="hover:text-green-500 hover:scale-110 transition-all"
+    aria-label="WhatsApp"
+  >
+    <FaWhatsapp className="w-4 h-4" />
+  </a>
 
-              <a
-                href="https://youtube.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-[var(--accent)] hover:scale-110 transition-all"
-                aria-label="YouTube"
-              >
-                <FaYoutube className="w-4 h-4" />
-              </a>
-            </div>
+  {/* YouTube */}
+  <a
+    href="https://www.youtube.com/@whoisfinalboss"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="hover:text-[var(--accent)] hover:scale-110 transition-all"
+    aria-label="YouTube"
+  >
+    <FaYoutube className="w-4 h-4" />
+  </a>
+</div>
+
 
             {/* Made By */}
         <p className="text-[10px] sm:text-xs text-center sm:text-left order-first sm:order-none">
