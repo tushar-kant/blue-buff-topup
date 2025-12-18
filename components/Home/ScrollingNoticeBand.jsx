@@ -1,7 +1,7 @@
 "use client";
 
 export default function ScrollingNoticeBand() {
-  const BRAND_NAME = process.env.NEXT_PUBLIC_BRAND_NAME || "Brand";
+  const BRAND_NAME = process.env.NEXT_PUBLIC_BRAND_NAME || "Meowji ";
 
   return (
     <div className="w-full overflow-hidden bg-[var(--card)] border-b border-[var(--border)] mt-2">

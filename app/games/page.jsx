@@ -105,7 +105,7 @@ export default function GamesPage() {
             : "hover:-translate-y-1 hover:shadow-xl hover:border-[var(--accent)]"
         }`}
       >
-        <div className="relative h-32 w-full overflow-hidden">
+<div className="relative w-full aspect-[4/5] overflow-hidden bg-black/10">
           <Image
             src={game.gameImageId?.image || logo}
             alt={game.gameName}
