@@ -4,185 +4,186 @@ import Link from "next/link";
 import {
   FaInstagram,
   FaXTwitter,
-  FaDiscord,
-  FaHeart,
   FaYoutube,
   FaWhatsapp,
+  FaHeart,
 } from "react-icons/fa6";
+
+/* ===================== CONFIG ===================== */
+
 const BRAND_NAME = process.env.NEXT_PUBLIC_BRAND_NAME || "MewJi";
+
+const BRAND = {
+  primary: BRAND_NAME.slice(0, 4),
+  secondary: BRAND_NAME.slice(4),
+  description:
+    "Fast, secure MLBB top-ups with instant delivery and 24×7 support — recharge diamonds in seconds.",
+};
+
+const FOOTER_LINKS = [
+  {
+    title: "Quick Links",
+    links: [
+      { label: "Home", href: "/" },
+      { label: "Region", href: "/region" },
+    ],
+  },
+  {
+    title: "Support",
+    links: [
+      { label: "About", href: "/about" },
+      { label: "Privacy Policy", href: "/privacy-policy" },
+      { label: "Terms & Conditions", href: "/terms-and-conditions" },
+      { label: "Contact Us", href: "/contact" },
+    ],
+  },
+];
+
+const SOCIALS_DESKTOP = [
+  {
+    label: "Instagram",
+    href: "https://www.instagram.com/meowjiofficial.mlbb?igsh=a3ZnOXBkNmY2ZDQ0",
+    icon: FaInstagram,
+    hover: "hover:text-[var(--accent)]",
+  },
+  {
+    label: "WhatsApp",
+    href: "https://wa.me/919366077306",
+    icon: FaWhatsapp,
+    hover: "hover:text-[var(--accent)]",
+  },
+  {
+    label: "YouTube",
+    href: "https://www.youtube.com/@whoisfinalboss",
+    icon: FaYoutube,
+    hover: "hover:text-[var(--accent)]",
+  },
+];
+
+const SOCIALS_MOBILE = [
+  {
+    label: "Instagram",
+    href: "https://www.instagram.com/meowjiofficial.mlbb?igsh=a3ZnOXBkNmY2ZDQ0",
+    icon: FaInstagram,
+    hover: "hover:text-[var(--accent)]",
+  },
+  {
+    label: "WhatsApp",
+    href: "https://wa.me/919366077306",
+    icon: FaWhatsapp,
+    hover: "hover:text-green-500",
+  },
+  {
+    label: "YouTube",
+    href: "https://www.youtube.com/@whoisfinalboss",
+    icon: FaYoutube,
+    hover: "hover:text-[var(--accent)]",
+  },
+];
+
+/* ===================== COMPONENT ===================== */
 
 export default function Footer() {
   return (
-    <footer className="border-t border-[var(--border)] bg-[var(--card)] text-[var(--muted)] mt-16">
-      
-      {/* Main Footer Section */}
+    <footer className="mt-16 bg-[var(--card)] text-[var(--muted)] border-t border-[var(--border)]">
+
+      {/* ================= MAIN ================= */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
-          
-          {/* Logo + Description */}
-        <div className="col-span-2 md:col-span-1">
-  <h2 className="text-xl sm:text-2xl font-extrabold mb-2 bg-gradient-to-r from-[var(--accent)] to-purple-500 bg-clip-text text-transparent">
-    {BRAND_NAME.slice(0, 3)}
-    <span className="text-[var(--foreground)]">
-      {BRAND_NAME.slice(3)}
-    </span>
-  </h2>
 
-  <p className="text-xs leading-relaxed max-w-[220px]">
-    Fast, secure MLBB top-ups with instant delivery and 24×7 support —
-    recharge diamonds in seconds.
-  </p>
-</div>
+          {/* Brand */}
+          <div className="col-span-2 md:col-span-1">
+            <h2 className="text-xl sm:text-2xl font-extrabold mb-2 bg-gradient-to-r from-[var(--accent)] to-purple-500 bg-clip-text text-transparent">
+              {BRAND.primary}
+              <span className="text-[var(--foreground)]">
+                {BRAND.secondary}
+              </span>
+            </h2>
 
-
-          {/* Quick Navigation */}
-          <div className="flex flex-col gap-1.5">
-            <h3 className="text-[var(--accent)] font-semibold text-xs sm:text-sm mb-1">
-              Quick Links
-            </h3>
-
-            <Link href="/" className="text-xs sm:text-sm hover:text-[var(--accent)] transition">
-              Home
-            </Link>
-
-            {/* <Link href="/wallpaper" className="text-xs sm:text-sm hover:text-[var(--accent)] transition">
-              Wallpapers
-            </Link>
-
-            <Link href="/heroes" className="text-xs sm:text-sm hover:text-[var(--accent)] transition">
-              Heroes
-            </Link>
-
-            <Link href="/events" className="text-xs sm:text-sm hover:text-[var(--accent)] transition">
-              Events
-            </Link> */}
-
-            {/* <Link href="/esports" className="text-xs sm:text-sm hover:text-[var(--accent)] transition">
-              Esports
-            </Link> */}
+            <p className="text-xs leading-relaxed max-w-[220px]">
+              {BRAND.description}
+            </p>
           </div>
 
-          {/* Support Links */}
-          <div className="flex flex-col gap-1.5">
-            <h3 className="text-[var(--accent)] font-semibold text-xs sm:text-sm mb-1">
-              Support
-            </h3>
+          {/* Link Sections */}
+          {FOOTER_LINKS.map((section) => (
+            <div key={section.title} className="flex flex-col gap-1.5">
+              <h3 className="text-[var(--accent)] font-semibold text-xs sm:text-sm mb-1">
+                {section.title}
+              </h3>
 
-            <Link href="/about" className="text-xs sm:text-sm hover:text-[var(--accent)] transition">
-              About
-            </Link>
+              {section.links.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-xs sm:text-sm hover:text-[var(--accent)] transition"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          ))}
 
-            <Link href="/privacy-policy" className="text-xs sm:text-sm hover:text-[var(--accent)] transition">
-              Privacy Policy
-            </Link>
-
-            <Link href="/terms-and-conditions" className="text-xs sm:text-sm hover:text-[var(--accent)] transition">
-              Terms & Conditions
-            </Link>
-
-            <Link href="/contact" className="text-xs sm:text-sm hover:text-[var(--accent)] transition">
-              Contact Us
-            </Link>
-          </div>
-
-          {/* Social Icons - Desktop */}
+          {/* Desktop Socials */}
           <div className="hidden md:flex flex-col gap-1.5">
             <h3 className="text-[var(--accent)] font-semibold text-xs sm:text-sm mb-1">
               Connect With Us
             </h3>
+
             <div className="flex items-center gap-3">
-              <a
-                href="https://instagram.com/zynx.v1"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-[var(--accent)] hover:scale-110 transition-all"
-                aria-label="Instagram"
-              >
-                <FaInstagram className="w-4 h-4" />
-              </a>
-
-              <a
-                href="https://instagram.com/zynx.v1"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-[var(--accent)] hover:scale-110 transition-all"
-                aria-label="Twitter"
-              >
-                <FaXTwitter className="w-4 h-4" />
-              </a>
-
-              <a
-                href="https://youtube.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-[var(--accent)] hover:scale-110 transition-all"
-                aria-label="YouTube"
-              >
-                <FaYoutube className="w-4 h-4" />
-              </a>
+              {SOCIALS_DESKTOP.map(({ label, href, icon: Icon, hover }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  className={`${hover} hover:scale-110 transition-all`}
+                >
+                  <Icon className="w-4 h-4" />
+                </a>
+              ))}
             </div>
           </div>
 
         </div>
       </div>
 
-      {/* Bottom Bar */}
+      {/* ================= BOTTOM ================= */}
       <div className="border-t border-[var(--border)] py-3 sm:py-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
 
-            {/* Social Icons - Mobile */}
-         <div className="flex md:hidden items-center gap-4">
-  {/* Instagram */}
-  <a
-    href="https://www.instagram.com/meowjiofficial.mlbb?igsh=a3ZnOXBkNmY2ZDQ0"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="hover:text-[var(--accent)] hover:scale-110 transition-all"
-    aria-label="Instagram"
-  >
-    <FaInstagram className="w-4 h-4" />
-  </a>
-
-  {/* WhatsApp */}
-  <a
-    href="https://wa.me/919366077306"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="hover:text-green-500 hover:scale-110 transition-all"
-    aria-label="WhatsApp"
-  >
-    <FaWhatsapp className="w-4 h-4" />
-  </a>
-
-  {/* YouTube */}
-  <a
-    href="https://www.youtube.com/@whoisfinalboss"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="hover:text-[var(--accent)] hover:scale-110 transition-all"
-    aria-label="YouTube"
-  >
-    <FaYoutube className="w-4 h-4" />
-  </a>
-</div>
-
+            {/* Mobile Socials */}
+            <div className="flex md:hidden gap-4">
+              {SOCIALS_MOBILE.map(({ label, href, icon: Icon, hover }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  className={`${hover} hover:scale-110 transition-all`}
+                >
+                  <Icon className="w-4 h-4" />
+                </a>
+              ))}
+            </div>
 
             {/* Made By */}
-        <p className="text-[10px] sm:text-xs text-center sm:text-left order-first sm:order-none">
-  Made with{" "}
-  <FaHeart className="inline w-3 h-3 text-[var(--accent)] mx-0.5 animate-pulse" />{" "}
-  by{" "}
-  <a
-    href="https://wa.me/916372305866"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="text-[var(--accent)] font-medium hover:underline"
-  >
-    Blue Buff
-  </a>
-</p>
-
+            <p className="text-[10px] sm:text-xs text-center order-first sm:order-none">
+              Made with{" "}
+              <FaHeart className="inline w-3 h-3 text-[var(--accent)] mx-0.5 animate-pulse" />{" "}
+              by{" "}
+              <a
+                href="https://wa.me/916372305866"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[var(--accent)] font-medium hover:underline"
+              >
+                Blue Buff
+              </a>
+            </p>
 
             {/* Copyright */}
             <p className="text-[10px] sm:text-xs">

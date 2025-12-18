@@ -54,8 +54,7 @@ export async function GET(req, context) {
 
     const gameSlug = data.data.gameSlug;
 
-    /* ================= APPLY PRICING ================= */
-   /* ================= APPLY PRICING ================= */
+
 data.data.itemId = data.data.itemId
   // ❌ REMOVE ITEMS FOR MLBB SMALL/PHP
   .filter((item) => {
