@@ -167,7 +167,7 @@ export default function GameDetailPage() {
                   }`}
               >
                 <p className="text-sm font-semibold truncate">
-                  {item.itemName}
+                 💎 {item.itemName}
                 </p>
 
                 <p className="mt-1 text-lg font-bold text-[var(--accent)]">
@@ -231,7 +231,7 @@ export default function GameDetailPage() {
                 }`}
             >
               <p className="text-sm font-semibold truncate">
-                {item.itemName}
+               💎 {item.itemName}
               </p>
 
               <p className="mt-1 text-lg font-bold text-[var(--accent)]">
@@ -266,7 +266,7 @@ export default function GameDetailPage() {
 
           <div className="flex-1 min-w-0">
             <h2 className="text-lg font-bold">
-              {activeItem.itemName}
+             💎 {activeItem.itemName}
             </h2>
 
             <div className="flex items-center gap-2 mt-1.5">

@@ -25,7 +25,7 @@ export default function RootLayout({
               <SocialFloat />
 
       </body>
-       <GoogleAnalytics gaId="G-XS42JM8W7L" />
+       {/* <GoogleAnalytics gaId="G-XS42JM8W7L" /> */}
        {/* <script src="https://quge5.com/88/tag.min.js" data-zone="191906" async data-cfasync="false"></script> */}
     </html>
   );
