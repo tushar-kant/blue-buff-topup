@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { FiFilter, FiX } from "react-icons/fi";
 import logo from "@/public/logo.png";
+import GamesFilterModal from "@/components/Games/GamesFilterModal";
 
 export default function GamesPage() {
   const [category, setCategory] = useState([]);
@@ -219,57 +220,15 @@ export default function GamesPage() {
 
       {/* ================= FILTER MODAL ================= */}
       {showFilter && (
-        <div
-          className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center"
-          onClick={() => setShowFilter(false)}
-        >
-          <div
-            className="bg-[var(--card)] w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="text-lg font-semibold mb-4">
-              Filter & Sort
-            </h3>
+      <GamesFilterModal
+  open={showFilter}
+  onClose={() => setShowFilter(false)}
+  sort={sort}
+  setSort={setSort}
+  hideOOS={hideOOS}
+  setHideOOS={setHideOOS}
+/>
 
-            <div className="mb-4">
-              <p className="text-sm font-medium mb-2">Sort By</p>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setSort("az")}
-                  className={`flex-1 py-2 rounded-xl border ${
-                    sort === "az" ? "border-[var(--accent)]" : ""
-                  }`}
-                >
-                  A – Z
-                </button>
-                <button
-                  onClick={() => setSort("za")}
-                  className={`flex-1 py-2 rounded-xl border ${
-                    sort === "za" ? "border-[var(--accent)]" : ""
-                  }`}
-                >
-                  Z – A
-                </button>
-              </div>
-            </div>
-
-            <label className="flex items-center gap-2 text-sm mb-6">
-              <input
-                type="checkbox"
-                checked={hideOOS}
-                onChange={(e) => setHideOOS(e.target.checked)}
-              />
-              Hide Out-of-Stock
-            </label>
-
-            <button
-              onClick={() => setShowFilter(false)}
-              className="w-full py-3 rounded-xl bg-[var(--accent)] text-black font-semibold"
-            >
-              Apply Filters
-            </button>
-          </div>
-        </div>
       )}
     </section>
   );
