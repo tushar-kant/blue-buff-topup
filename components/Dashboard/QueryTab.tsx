@@ -8,13 +8,15 @@ import {
   FaWhatsapp,
 } from "react-icons/fa";
 
-/* ===================== CONFIG (JSON) ===================== */
+/* ===================== ENV ===================== */
 
 const SUPPORT_CONFIG = {
   header: {
-    title: "Support Center",
+    title:
+      process.env.NEXT_PUBLIC_SUPPORT_TITLE || "Support Center",
     subtitle:
-      "Facing an issue? Contact us instantly or submit a support query and our team will assist you.",
+      process.env.NEXT_PUBLIC_SUPPORT_SUBTITLE ||
+      "Contact support for help.",
   },
 
   contacts: {
@@ -23,39 +25,38 @@ const SUPPORT_CONFIG = {
       {
         id: "phone",
         title: "Call Support",
-        value: "+91 9366077306",
-        href: "tel:+91 9366077306",
+        value: process.env.NEXT_PUBLIC_SUPPORT_PHONE,
+        href: process.env.NEXT_PUBLIC_SUPPORT_PHONE_TEL,
         icon: "phone",
         external: false,
       },
       {
         id: "instagram",
         title: "Instagram",
-        value: "meowjiofficial.mlbb",
-        href:
-          "https://www.instagram.com/meowjiofficial.mlbb?igsh=a3ZnOXBkNmY2ZDQ0",
+        value: process.env.NEXT_PUBLIC_SUPPORT_INSTAGRAM_LABEL,
+        href: process.env.NEXT_PUBLIC_SUPPORT_INSTAGRAM_URL,
         icon: "instagram",
         external: true,
       },
       {
         id: "youtube",
         title: "YouTube",
-        value: "@whoisfinalboss",
-        href:
-          "https://www.youtube.com/@whoisfinalboss",
+        value: process.env.NEXT_PUBLIC_SUPPORT_YOUTUBE_LABEL,
+        href: process.env.NEXT_PUBLIC_SUPPORT_YOUTUBE_URL,
         icon: "youtube",
         external: true,
       },
       {
         id: "whatsapp",
         title: "WhatsApp Group",
-        value: "Join Support Group",
-        href:
-          "https://whatsapp.com/channel/0029Vb6hFflB4hdQnstejY05",
+        value: process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP_LABEL,
+        href: process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP_URL,
         icon: "whatsapp",
         external: true,
       },
-    ],
+    ].filter(
+      (item) => item.value && item.href
+    ), // safety
   },
 
   queryTypes: [
@@ -87,6 +88,7 @@ export default function QueryTab() {
     if (!queryType) return;
 
     setIsSubmitting(true);
+
     const storedEmail = localStorage.getItem("email");
     const storedPhone = localStorage.getItem("phone");
 
@@ -104,15 +106,15 @@ export default function QueryTab() {
 
       const data = await res.json();
 
-      if (data.success) {
-        setQuerySuccess("Your query has been submitted successfully.");
-      } else {
-        setQuerySuccess(data.message || "Something went wrong.");
-      }
+      setQuerySuccess(
+        data.success
+          ? "Your query has been submitted successfully."
+          : data.message || "Something went wrong."
+      );
 
       setQueryType("");
       setQueryMessage("");
-    } catch (error) {
+    } catch {
       setQuerySuccess("Failed to submit query. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -121,8 +123,7 @@ export default function QueryTab() {
 
   return (
     <div className="space-y-10">
-
-      {/* ================= HEADER ================= */}
+      {/* Header */}
       <div>
         <h2 className="text-2xl font-semibold mb-2">
           {SUPPORT_CONFIG.header.title}
@@ -132,20 +133,20 @@ export default function QueryTab() {
         </p>
       </div>
 
-      {/* ================= CONTACT SECTION ================= */}
-      <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6">
+      {/* Contacts */}
+      <div className="rounded-2xl border bg-[var(--card)] p-6">
         <h3 className="text-lg font-semibold mb-4">
           {SUPPORT_CONFIG.contacts.title}
         </h3>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid sm:grid-cols-2 gap-4">
           {SUPPORT_CONFIG.contacts.items.map((item) => (
             <a
               key={item.id}
               href={item.href}
               target={item.external ? "_blank" : undefined}
               rel={item.external ? "noopener noreferrer" : undefined}
-              className="flex items-center gap-4 rounded-xl border border-[var(--border)] p-4 hover:border-[var(--accent)] transition"
+              className="flex gap-4 rounded-xl border p-4 hover:border-[var(--accent)] transition"
             >
               <div className="p-3 rounded-xl bg-[var(--accent)]/10 text-[var(--accent)] text-lg">
                 {ICON_MAP[item.icon]}
@@ -153,16 +154,20 @@ export default function QueryTab() {
 
               <div>
                 <p className="font-medium">{item.title}</p>
-                <p className="text-xs text-[var(--muted)]">{item.value}</p>
+                <p className="text-xs text-[var(--muted)]">
+                  {item.value}
+                </p>
               </div>
             </a>
           ))}
         </div>
       </div>
 
-      {/* ================= QUERY FORM ================= */}
-      <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6">
-        <h3 className="text-lg font-semibold mb-5">Submit a Query</h3>
+      {/* Query Form */}
+      <div className="rounded-2xl border bg-[var(--card)] p-6">
+        <h3 className="text-lg font-semibold mb-5">
+          Submit a Query
+        </h3>
 
         {querySuccess && (
           <div className="mb-4 rounded-xl bg-green-500/10 text-green-500 px-4 py-2 text-sm">
@@ -173,27 +178,25 @@ export default function QueryTab() {
         <select
           value={queryType}
           onChange={(e) => setQueryType(e.target.value)}
-          className="w-full mb-4 p-3 rounded-xl bg-[var(--background)] border border-[var(--border)] focus:border-[var(--accent)] outline-none"
+          className="w-full mb-4 p-3 rounded-xl border bg-[var(--background)]"
         >
           <option value="">Select Query Type</option>
           {SUPPORT_CONFIG.queryTypes.map((type) => (
-            <option key={type} value={type}>
-              {type}
-            </option>
+            <option key={type}>{type}</option>
           ))}
         </select>
 
         <textarea
-          className="w-full mb-4 p-3 rounded-xl h-32 bg-[var(--background)] border border-[var(--border)] focus:border-[var(--accent)] outline-none resize-none"
-          placeholder="Describe your issue in detail..."
           value={queryMessage}
           onChange={(e) => setQueryMessage(e.target.value)}
+          placeholder="Describe your issue in detail..."
+          className="w-full h-32 mb-4 p-3 rounded-xl border bg-[var(--background)] resize-none"
         />
 
         <button
           disabled={!queryType || isSubmitting}
           onClick={handleSubmit}
-          className={`w-full py-3 rounded-xl font-medium transition ${
+          className={`w-full py-3 rounded-xl font-medium ${
             !queryType || isSubmitting
               ? "bg-gray-500 cursor-not-allowed"
               : "bg-[var(--accent)] hover:opacity-90"
