@@ -10,6 +10,8 @@ import MLBBPurchaseGuide from "../../../components/HelpImage/MLBBPurchaseGuide";
 
 import ItemGrid from "@/components/GameDetail/ItemGrid";
 import BuyPanel from "@/components/GameDetail/BuyPanel";
+import ItemGridBgmi from "@/components/GameDetail/ItemGridBgmi";
+import BuyPanelBgmi from "@/components/GameDetail/BuyPanelBgmi";
 
 export default function GameDetailPage() {
   const { slug } = useParams();
@@ -20,6 +22,8 @@ export default function GameDetailPage() {
   const [game, setGame] = useState(null);
   const [activeItem, setActiveItem] = useState(null);
   const [redirecting, setRedirecting] = useState(false);
+const isBGMI =
+  game?.gameName?.toLowerCase() === "pubg mobile";
 
   /* ================= FETCH GAME ================= */
   useEffect(() => {
@@ -62,9 +66,20 @@ export default function GameDetailPage() {
       image: item.itemImageId?.image || "",
     });
 
-    router.push(
-      `/games/${slug}/buy/${item.itemSlug}?${query.toString()}`
-    );
+    // router.push(
+    //   `/games/${slug}/buy/${item.itemSlug}?${query.toString()}`
+    // );
+
+      const isBGMI =
+    game?.gameName?.toLowerCase() === "pubg mobile";
+
+  const basePath = isBGMI
+    ? `/games/pubg/${slug}/buy`
+    : `/games/${slug}/buy`;
+
+  router.push(
+    `${basePath}/${item.itemSlug}?${query.toString()}`
+  );
   };
 
   return (
@@ -92,25 +107,45 @@ export default function GameDetailPage() {
       </div>
 
       {/* ================= ITEM GRID ================= */}
-      <ItemGrid
+       {isBGMI ? (
+      <ItemGridBgmi
+        items={game.allItems}
+        activeItem={activeItem}
+        setActiveItem={setActiveItem}
+        buyPanelRef={buyPanelRef}
+      />
+      ) : (
+           <ItemGrid
         items={game.allItems}
         activeItem={activeItem}
         setActiveItem={setActiveItem}
         buyPanelRef={buyPanelRef}
       />
 
+        )}
+
       {/* ================= BUY PANEL ================= */}
-      <BuyPanel
+        {isBGMI ? (
+      <BuyPanelBgmi
         activeItem={activeItem}
         onBuy={goBuy}
         redirecting={redirecting}
         buyPanelRef={buyPanelRef}
       />
+      ) : (
+          <BuyPanel
+        activeItem={activeItem}
+        onBuy={goBuy}
+        redirecting={redirecting}
+        buyPanelRef={buyPanelRef}
+      />
+      )}
+
 
       {/* ================= HELP GUIDE ================= */}
-      <div className="max-w-6xl mx-auto mt-6">
+      {/* <div className="max-w-6xl mx-auto mt-6">
         <MLBBPurchaseGuide />
-      </div>
+      </div> */}
     </section>
   );
 }

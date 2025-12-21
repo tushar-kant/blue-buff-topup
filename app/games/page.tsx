@@ -20,7 +20,7 @@ export default function GamesPage() {
   const SPECIAL_MLBB_GAME = "MLBB SMALL";
 
   const outOfStockGames = [
-    "PUBG Mobile",
+    // "PUBG Mobile",
     "Genshin Impact",
     "Honor Of Kings",
     "TEST 1",
