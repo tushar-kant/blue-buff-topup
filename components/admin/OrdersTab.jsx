@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 export default function OrdersTab({ orders, onUpdateStatus }) {
-  const STATUS = ["pending", "success", "failed"];
+  const STATUS = ["pending", "success", "failed","refund"];
   const [selectedOrder, setSelectedOrder] = useState(null);
 
   return (

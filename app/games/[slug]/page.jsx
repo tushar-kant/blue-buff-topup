@@ -98,7 +98,8 @@ const isBGMI =
 
         <div>
           <h1 className="text-2xl font-extrabold">
-            {game?.gameName}
+            {/* {game?.gameName} */}
+             {isBGMI ? "BGMI" : game?.gameName}
           </h1>
           <p className="text-xs text-[var(--muted)]">
             {game?.gameFrom}

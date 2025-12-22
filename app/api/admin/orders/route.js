@@ -101,7 +101,7 @@ export async function PATCH(req) {
       );
     }
 
-    const allowedStatus = ["pending", "success", "failed", "cancelled"];
+    const allowedStatus = ["pending", "success", "failed", "refund"];
     if (!allowedStatus.includes(status)) {
       return Response.json(
         { success: false, message: "Invalid status" },

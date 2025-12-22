@@ -15,8 +15,8 @@ const OrderSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: [
-        "pending", "success", "failed",    // lowercase
-        "PENDING", "SUCCESS", "FAILED"     // uppercase (optional)
+        "pending", "success", "failed", "refund",
+        "PENDING", "SUCCESS", "FAILED" , "REFUND"
       ],
       default: "pending"
     },

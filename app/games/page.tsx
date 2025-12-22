@@ -30,14 +30,22 @@ export default function GamesPage() {
     outOfStockGames.includes(name);
 
   /* ================= FETCH ================= */
-  useEffect(() => {
-    fetch("/api/games")
-      .then((res) => res.json())
-      .then((data) => {
-        setCategory(data?.data?.category || []);
-        setGames(data?.data?.games || []);
-      });
-  }, []);
+useEffect(() => {
+  fetch("/api/games")
+    .then((res) => res.json())
+    .then((data) => {
+      setCategory(data?.data?.category || []);
+
+      setGames(
+        (data?.data?.games || []).map((g: any) =>
+          g.gameName === "PUBG Mobile"
+            ? { ...g, gameName: "BGMI" }
+            : g
+        )
+      );
+    });
+}, []);
+
 
   /* ================= ACTIVE FILTER COUNT ================= */
   const activeFilterCount =
@@ -61,6 +69,10 @@ export default function GamesPage() {
 
     return filtered;
   };
+const getDisplayName = (name: string) => {
+  if (name === "PUBG Mobile") return "BGMI";
+  return name;
+};
 
   /* ================= PIN MLBB GAME ================= */
   const injectSpecialGame = (cat: any) => {
