@@ -118,39 +118,72 @@ const handleProceed = async () => {
             </div>
           </div>
 
-          {/* User Contact */}
-          <div className="bg-black/20 p-4 rounded-xl border border-gray-700 shadow-sm">
-            <h3 className="font-semibold text-lg mb-3">Your Details</h3>
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div className="flex flex-col bg-black/30 p-3 rounded-lg border border-gray-700">
-                <span className="text-gray-400 text-xs">Email</span>
-                <span className="font-medium">{userEmail || "Not Provided"}</span>
-              </div>
-              <div className="flex flex-col bg-black/30 p-3 rounded-lg border border-gray-700">
-                <span className="text-gray-400 text-xs">Phone</span>
-                <span className="font-medium">{userPhone || "Not Provided"}</span>
-              </div>
-            </div>
-          </div>
+     {/* ================= USER CONTACT ================= */}
+<div className="bg-gradient-to-br from-black/40 to-black/20 
+                p-5 rounded-2xl border border-gray-700/70 
+                shadow-lg backdrop-blur">
+  <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+    <span className="w-2 h-2 rounded-full bg-emerald-400" />
+    Your Details
+  </h3>
 
-          {/* Game Details */}
-          <div className="bg-black/20 p-4 rounded-xl border border-gray-700 shadow-sm">
-            <h3 className="font-semibold text-lg mb-3">Game Details</h3>
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div className="flex flex-col bg-black/30 p-3 rounded-lg border border-gray-700">
-                <span className="text-gray-400 text-xs">Username</span>
-                <span className="font-medium">{reviewData.userName}</span>
-              </div>
-              <div className="flex flex-col bg-black/30 p-3 rounded-lg border border-gray-700">
-                <span className="text-gray-400 text-xs">User ID</span>
-                <span className="font-medium">{reviewData.playerId}</span>
-              </div>
-              <div className="flex flex-col bg-black/30 p-3 rounded-lg border border-gray-700">
-                <span className="text-gray-400 text-xs">Zone ID</span>
-                <span className="font-medium">{reviewData.zoneId}</span>
-              </div>
-            </div>
-          </div>
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+    <div className="flex flex-col bg-black/40 p-4 rounded-xl 
+                    border border-gray-700/70 transition
+                    hover:border-emerald-500/60">
+      <span className="text-gray-400 text-xs mb-1">Email</span>
+      <span className="font-semibold text-gray-100 break-all">
+        {userEmail || "Not Provided"}
+      </span>
+    </div>
+
+    <div className="flex flex-col bg-black/40 p-4 rounded-xl 
+                    border border-gray-700/70 transition
+                    hover:border-emerald-500/60">
+      <span className="text-gray-400 text-xs mb-1">Phone</span>
+      <span className="font-semibold text-gray-100">
+        {userPhone || "Not Provided"}
+      </span>
+    </div>
+  </div>
+</div>
+
+{/* ================= GAME DETAILS ================= */}
+<div className="bg-gradient-to-br from-black/40 to-black/20 
+                p-5 rounded-2xl border border-gray-700/70 
+                shadow-lg backdrop-blur mt-6">
+  <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+    <span className="w-2 h-2 rounded-full bg-indigo-400" />
+    Game Details
+  </h3>
+
+  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+    <div className="flex flex-col bg-black/40 p-4 rounded-xl 
+                    border border-gray-700/70">
+      <span className="text-gray-400 text-xs mb-1">Username</span>
+      <span className="font-semibold text-gray-100">
+        {reviewData.userName}
+      </span>
+    </div>
+
+    <div className="flex flex-col bg-black/40 p-4 rounded-xl 
+                    border border-gray-700/70">
+      <span className="text-gray-400 text-xs mb-1">User ID</span>
+      <span className="font-semibold text-gray-100">
+        {reviewData.playerId}
+      </span>
+    </div>
+
+    <div className="flex flex-col bg-black/40 p-4 rounded-xl 
+                    border border-gray-700/70">
+      <span className="text-gray-400 text-xs mb-1">Zone ID</span>
+      <span className="font-semibold text-gray-100">
+        {reviewData.zoneId}
+      </span>
+    </div>
+  </div>
+</div>
+
 
           {/* Payment Method */}
           <div className="bg-black/20 p-4 rounded-xl border border-gray-700">
