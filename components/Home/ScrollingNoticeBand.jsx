@@ -1,54 +1,73 @@
 "use client";
 
-/* ================= CONFIG (DATA ONLY) ================= */
+/* ================= NOTICE CONFIG (EDIT HERE) ================= */
 const NOTICE_CONFIG = {
-  speed: 18, // seconds
-  brandEnvKey: "NEXT_PUBLIC_BRAND_NAME",
-  fallbackBrand: "Meowji",
-  messages: [
+  brandFallback: "Meowji",
+  items: [
     {
-      id: "welcome",
       type: "brand",
-      text: "Welcome to {brand} Store",
+      prefix: "Welcome to",
+      suffix: "Store",
     },
     {
-      id: "instant",
-      type: "accent",
-      accent: "Instant",
-      text: "& Safe Top-Ups",
+      type: "text",
+      highlight: "Instant",
+      text: "Instant & Safe Top-Ups",
     },
     {
-      id: "delivery",
-      type: "accent",
-      accent: "24×7",
-      text: "Automated Delivery",
+      type: "text",
+      highlight: "24×7",
+      text: "24×7 Automated Delivery",
     },
   ],
+  animationDuration: "23s",
 };
+/* ============================================================= */
 
-/* ================= COMPONENT ================= */
 export default function ScrollingNoticeBand() {
   const BRAND_NAME =
-    process.env[NOTICE_CONFIG.brandEnvKey] ||
-    NOTICE_CONFIG.fallbackBrand;
-
-  // duplicate once for smooth infinite scroll
-  const items = [...NOTICE_CONFIG.messages, ...NOTICE_CONFIG.messages];
+    process.env.NEXT_PUBLIC_BRAND_NAME || NOTICE_CONFIG.brandFallback;
 
   return (
     <div className="w-full overflow-hidden bg-[var(--card)] border-b border-[var(--border)] mt-2">
-      <div className="scroll-track py-2 text-sm font-medium whitespace-nowrap text-[var(--foreground)]">
-        {items.map((item, index) => (
-          <span key={`${item.id}-${index}`} className="mx-8">
-            {renderMessage(item, BRAND_NAME)}
-          </span>
-        ))}
+      <div
+        className="scroll-track py-2 text-sm font-medium whitespace-nowrap text-[var(--foreground)]"
+        style={{ animationDuration: NOTICE_CONFIG.animationDuration }}
+      >
+        {/* Render twice for seamless scrolling */}
+        {[...NOTICE_CONFIG.items, ...NOTICE_CONFIG.items].map(
+          (item, index) => {
+            if (item.type === "brand") {
+              return (
+                <span key={index} className="mx-8">
+                  {item.prefix}{" "}
+                  <b className="text-[var(--accent)]">
+                    {BRAND_NAME} {item.suffix}
+                  </b>
+                </span>
+              );
+            }
+
+            if (item.type === "text") {
+              return (
+                <span key={index} className="mx-8">
+                  <b className="text-[var(--accent)]">
+                    {item.highlight}
+                  </b>{" "}
+                  {item.text.replace(item.highlight, "")}
+                </span>
+              );
+            }
+
+            return null;
+          }
+        )}
       </div>
 
       <style jsx>{`
         .scroll-track {
           display: inline-block;
-          animation: scroll-left ${NOTICE_CONFIG.speed}s linear infinite;
+          animation: scroll-left linear infinite;
         }
 
         @keyframes scroll-left {
@@ -62,28 +81,4 @@ export default function ScrollingNoticeBand() {
       `}</style>
     </div>
   );
-}
-
-/* ================= RENDER LOGIC ================= */
-function renderMessage(item, brand) {
-  if (item.type === "brand") {
-    return (
-      <>
-        {item.text.split("{brand}")[0]}
-        <b className="text-[var(--accent)]">{brand}</b>
-        {item.text.split("{brand}")[1]}
-      </>
-    );
-  }
-
-  if (item.type === "accent") {
-    return (
-      <>
-        <b className="text-[var(--accent)]">{item.accent}</b>{" "}
-        {item.text}
-      </>
-    );
-  }
-
-  return item.text;
 }

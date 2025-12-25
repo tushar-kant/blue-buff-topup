@@ -126,168 +126,199 @@ export default function AuthPage() {
     }
   };
 
-  return (
-    <section className="min-h-screen flex items-center justify-center bg-[var(--background)] p-6 text-[var(--foreground)]">
-      <div className="bg-[var(--card)] border border-[var(--border)] shadow-lg rounded-xl p-6 w-full max-w-md">
+return (
+  <section className="min-h-screen flex items-center justify-center bg-[var(--background)] p-6 text-[var(--foreground)]">
+    <div className="bg-[var(--card)] border border-[var(--border)] shadow-xl rounded-2xl p-6 w-full max-w-md">
 
-        {/* Tabs */}
-        <div className="flex mb-6 border-b border-[var(--border)]">
-          <button
-            className={`flex-1 py-3 font-semibold ${
-              tab === "login"
-                ? "text-[var(--accent)] border-b-2 border-[var(--accent)]"
-                : "text-[var(--muted)]"
-            }`}
-            onClick={() => {
-              setErrors({});
-              setSuccess("");
-              setTab("login");
-            }}
-          >
-            Login
-          </button>
+      {/* Tabs */}
+      <div className="flex mb-6 border-b border-[var(--border)]">
+        <button
+          className={`flex-1 py-3 font-semibold transition ${
+            tab === "login"
+              ? "text-[var(--accent)] border-b-2 border-[var(--accent)]"
+              : "text-[var(--muted)] hover:text-[var(--foreground)]"
+          }`}
+          onClick={() => {
+            setErrors({});
+            setSuccess("");
+            setTab("login");
+          }}
+        >
+          Login
+        </button>
 
-          <button
-            className={`flex-1 py-3 font-semibold ${
-              tab === "register"
-                ? "text-[var(--accent)] border-b-2 border-[var(--accent)]"
-                : "text-[var(--muted)]"
-            }`}
-            onClick={() => {
-              setErrors({});
-              setSuccess("");
-              setTab("register");
-            }}
-          >
-            Register
-          </button>
-        </div>
-
-        {success && (
-          <p className="text-green-500 text-center mb-4 font-medium">
-            {success}
-          </p>
-        )}
-
-        {/* LOGIN */}
-        {tab === "login" && (
-          <div className="space-y-4">
-            <input
-              type="text"
-              placeholder="Email or Phone"
-              disabled={loggingIn}
-              className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)] disabled:opacity-50"
-              value={loginData.user}
-              onChange={(e) =>
-                setLoginData({ ...loginData, user: e.target.value })
-              }
-            />
-            {errors.user && (
-              <p className="text-red-500 text-sm">{errors.user}</p>
-            )}
-
-            <input
-              type="password"
-              placeholder="Password"
-              disabled={loggingIn}
-              className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)] disabled:opacity-50"
-              value={loginData.password}
-              onChange={(e) =>
-                setLoginData({ ...loginData, password: e.target.value })
-              }
-            />
-            {errors.password && (
-              <p className="text-red-500 text-sm">{errors.password}</p>
-            )}
-
-            <button
-              onClick={handleLogin}
-              disabled={loggingIn}
-              className={`w-full py-3 rounded-lg font-semibold ${
-                loggingIn
-                  ? "bg-gray-500 cursor-not-allowed"
-                  : "bg-[var(--accent)] text-white"
-              }`}
-            >
-              {loggingIn ? "Logging in..." : "Login"}
-            </button>
-          </div>
-        )}
-
-        {/* REGISTER */}
-        {tab === "register" && (
-          <div className="space-y-4">
-            <input
-              type="text"
-              placeholder="Full Name"
-              disabled={registering}
-              className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)] disabled:opacity-50"
-              value={regData.name}
-              onChange={(e) =>
-                setRegData({ ...regData, name: e.target.value })
-              }
-            />
-            {errors.name && (
-              <p className="text-red-500 text-sm">{errors.name}</p>
-            )}
-
-            <input
-              type="email"
-              placeholder="Gmail Address"
-              disabled={registering}
-              className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)] disabled:opacity-50"
-              value={regData.email}
-              onChange={(e) =>
-                setRegData({ ...regData, email: e.target.value })
-              }
-            />
-            {errors.email && (
-              <p className="text-red-500 text-sm">{errors.email}</p>
-            )}
-
-            <input
-              type="text"
-              placeholder="Phone Number"
-              maxLength={10}
-              disabled={registering}
-              className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)] disabled:opacity-50"
-              value={regData.phone}
-              onChange={(e) =>
-                setRegData({ ...regData, phone: e.target.value })
-              }
-            />
-            {errors.phone && (
-              <p className="text-red-500 text-sm">{errors.phone}</p>
-            )}
-
-            <input
-              type="password"
-              placeholder="Password (min 6 characters)"
-              disabled={registering}
-              className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)] disabled:opacity-50"
-              value={regData.password}
-              onChange={(e) =>
-                setRegData({ ...regData, password: e.target.value })
-              }
-            />
-            {errors.password && (
-              <p className="text-red-500 text-sm">{errors.password}</p>
-            )}
-
-            <button
-              onClick={handleRegister}
-              disabled={registering}
-              className={`w-full py-3 rounded-lg font-semibold ${
-                registering
-                  ? "bg-gray-500 cursor-not-allowed"
-                  : "bg-[var(--accent)] text-white"
-              }`}
-            >
-              {registering ? "Creating account..." : "Create Account"}
-            </button>
-          </div>
-        )}
+        <button
+          className={`flex-1 py-3 font-semibold transition ${
+            tab === "register"
+              ? "text-[var(--accent)] border-b-2 border-[var(--accent)]"
+              : "text-[var(--muted)] hover:text-[var(--foreground)]"
+          }`}
+          onClick={() => {
+            setErrors({});
+            setSuccess("");
+            setTab("register");
+          }}
+        >
+          Register
+        </button>
       </div>
-    </section>
-  );
+
+      {success && (
+        <p className="text-green-500 text-center mb-4 font-medium">
+          {success}
+        </p>
+      )}
+
+      {/* ================= LOGIN ================= */}
+      {tab === "login" && (
+        <div className="space-y-4">
+          <input
+            type="text"
+            placeholder="Email or Phone"
+            disabled={loggingIn}
+            className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)] focus:ring-2 focus:ring-[var(--accent)] outline-none"
+            value={loginData.user}
+            onChange={(e) =>
+              setLoginData({ ...loginData, user: e.target.value })
+            }
+          />
+          {errors.user && (
+            <p className="text-red-500 text-sm">{errors.user}</p>
+          )}
+
+          <input
+            type="password"
+            placeholder="Password"
+            disabled={loggingIn}
+            className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)] focus:ring-2 focus:ring-[var(--accent)] outline-none"
+            value={loginData.password}
+            onChange={(e) =>
+              setLoginData({ ...loginData, password: e.target.value })
+            }
+          />
+          {errors.password && (
+            <p className="text-red-500 text-sm">{errors.password}</p>
+          )}
+
+          <button
+            onClick={handleLogin}
+            disabled={loggingIn}
+            className={`w-full py-3 rounded-lg font-semibold transition ${
+              loggingIn
+                ? "bg-gray-500 cursor-not-allowed"
+                : "bg-[var(--accent)] text-white hover:opacity-90"
+            }`}
+          >
+            {loggingIn ? "Logging in..." : "Login"}
+          </button>
+
+          {/* Register link */}
+          <p className="text-center text-sm text-[var(--muted)] pt-2">
+            Don’t have an account?{" "}
+            <button
+              onClick={() => {
+                setErrors({});
+                setSuccess("");
+                setTab("register");
+              }}
+              className="text-[var(--accent)] font-medium hover:underline"
+            >
+              Create one
+            </button>
+          </p>
+        </div>
+      )}
+
+      {/* ================= REGISTER ================= */}
+      {tab === "register" && (
+        <div className="space-y-4">
+          <input
+            type="text"
+            placeholder="Full Name"
+            disabled={registering}
+            className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)] focus:ring-2 focus:ring-[var(--accent)] outline-none"
+            value={regData.name}
+            onChange={(e) =>
+              setRegData({ ...regData, name: e.target.value })
+            }
+          />
+          {errors.name && (
+            <p className="text-red-500 text-sm">{errors.name}</p>
+          )}
+
+          <input
+            type="email"
+            placeholder="Gmail Address"
+            disabled={registering}
+            className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)] focus:ring-2 focus:ring-[var(--accent)] outline-none"
+            value={regData.email}
+            onChange={(e) =>
+              setRegData({ ...regData, email: e.target.value })
+            }
+          />
+          {errors.email && (
+            <p className="text-red-500 text-sm">{errors.email}</p>
+          )}
+
+          <input
+            type="text"
+            placeholder="Phone Number"
+            maxLength={10}
+            disabled={registering}
+            className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)] focus:ring-2 focus:ring-[var(--accent)] outline-none"
+            value={regData.phone}
+            onChange={(e) =>
+              setRegData({ ...regData, phone: e.target.value })
+            }
+          />
+          {errors.phone && (
+            <p className="text-red-500 text-sm">{errors.phone}</p>
+          )}
+
+          <input
+            type="password"
+            placeholder="Password (min 6 characters)"
+            disabled={registering}
+            className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)] focus:ring-2 focus:ring-[var(--accent)] outline-none"
+            value={regData.password}
+            onChange={(e) =>
+              setRegData({ ...regData, password: e.target.value })
+            }
+          />
+          {errors.password && (
+            <p className="text-red-500 text-sm">{errors.password}</p>
+          )}
+
+          <button
+            onClick={handleRegister}
+            disabled={registering}
+            className={`w-full py-3 rounded-lg font-semibold transition ${
+              registering
+                ? "bg-gray-500 cursor-not-allowed"
+                : "bg-[var(--accent)] text-white hover:opacity-90"
+            }`}
+          >
+            {registering ? "Creating account..." : "Create Account"}
+          </button>
+
+          {/* Login link */}
+          <p className="text-center text-sm text-[var(--muted)] pt-2">
+            Already have an account?{" "}
+            <button
+              onClick={() => {
+                setErrors({});
+                setSuccess("");
+                setTab("login");
+              }}
+              className="text-[var(--accent)] font-medium hover:underline"
+            >
+              Login
+            </button>
+          </p>
+        </div>
+      )}
+    </div>
+  </section>
+);
+
 }
