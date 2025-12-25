@@ -143,10 +143,6 @@ const isBGMI =
       )}
 
 
-      {/* ================= HELP GUIDE ================= */}
-      {/* <div className="max-w-6xl mx-auto mt-6">
-        <MLBBPurchaseGuide />
-      </div> */}
     </section>
   );
 }

@@ -8,19 +8,19 @@ import logo from "@/public/logo.png";
 import GamesFilterModal from "@/components/Games/GamesFilterModal";
 
 export default function GamesPage() {
-  const [category, setCategory] = useState([]);
-  const [games, setGames] = useState([]);
+  const [category, setCategory] = useState<any[]>([]);
+  const [games, setGames] = useState<any[]>([]);
 
   /* ================= FILTER STATE ================= */
   const [showFilter, setShowFilter] = useState(false);
-  const [sort, setSort] = useState("az"); // az | za
+  const [sort, setSort] = useState<"az" | "za">("az");
   const [hideOOS, setHideOOS] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   /* ================= CONFIG ================= */
   const SPECIAL_MLBB_GAME = "MLBB SMALL";
 
   const outOfStockGames = [
-    // "PUBG Mobile",
     "Genshin Impact",
     "Honor Of Kings",
     "TEST 1",
@@ -30,34 +30,43 @@ export default function GamesPage() {
     outOfStockGames.includes(name);
 
   /* ================= FETCH ================= */
-useEffect(() => {
-  fetch("/api/games")
-    .then((res) => res.json())
-    .then((data) => {
-      setCategory(data?.data?.category || []);
-
-      setGames(
-        (data?.data?.games || []).map((g: any) =>
-          g.gameName === "PUBG Mobile"
-            ? { ...g, gameName: "BGMI" }
-            : g
-        )
-      );
-    });
-}, []);
-
+  useEffect(() => {
+    fetch("/api/games")
+      .then((res) => res.json())
+      .then((data) => {
+        setCategory(data?.data?.category || []);
+        setGames(
+          (data?.data?.games || []).map((g: any) =>
+            g.gameName === "PUBG Mobile"
+              ? { ...g, gameName: "BGMI" }
+              : g
+          )
+        );
+      });
+  }, []);
 
   /* ================= ACTIVE FILTER COUNT ================= */
   const activeFilterCount =
-    (sort !== "az" ? 1 : 0) + (hideOOS ? 1 : 0);
+    (sort !== "az" ? 1 : 0) +
+    (hideOOS ? 1 : 0) +
+    (searchQuery ? 1 : 0);
 
-  /* ================= FILTER + SORT ================= */
+  /* ================= FILTER + SORT + SEARCH ================= */
   const processGames = (list: any[]) => {
     let filtered = [...list];
 
     if (hideOOS) {
       filtered = filtered.filter(
         (g) => !isOutOfStock(g.gameName)
+      );
+    }
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (g) =>
+          g.gameName.toLowerCase().includes(q) ||
+          g.gameFrom?.toLowerCase().includes(q)
       );
     }
 
@@ -69,10 +78,6 @@ useEffect(() => {
 
     return filtered;
   };
-const getDisplayName = (name: string) => {
-  if (name === "PUBG Mobile") return "BGMI";
-  return name;
-};
 
   /* ================= PIN MLBB GAME ================= */
   const injectSpecialGame = (cat: any) => {
@@ -85,7 +90,7 @@ const getDisplayName = (name: string) => {
     }
 
     const specialGame = games.find(
-      (g: any) => g.gameName === SPECIAL_MLBB_GAME
+      (g) => g.gameName === SPECIAL_MLBB_GAME
     );
 
     if (!specialGame) return cat.gameId;
@@ -112,7 +117,7 @@ const getDisplayName = (name: string) => {
             : "hover:-translate-y-1 hover:shadow-[0_20px_40px_-20px_rgba(0,0,0,0.5)] hover:border-[var(--accent)]"
         }`}
       >
-        {/* Image */}
+        {/* IMAGE */}
         <div className="relative w-full aspect-[4/5] bg-black/10 overflow-hidden">
           <Image
             src={game.gameImageId?.image || logo}
@@ -122,10 +127,8 @@ const getDisplayName = (name: string) => {
             ${disabled ? "grayscale blur-[1px]" : "group-hover:scale-110"}`}
           />
 
-          {/* Overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
 
-          {/* Tag */}
           {!disabled && game.tagId && (
             <span
               className="absolute top-3 left-3 text-[10px] px-2 py-1 rounded-full font-medium backdrop-blur"
@@ -138,15 +141,14 @@ const getDisplayName = (name: string) => {
             </span>
           )}
 
-          {/* OOS */}
           {disabled && (
-            <span className="absolute top-3 right-3 text-[10px] px-2 py-1 rounded-full bg-red-600/90 text-white backdrop-blur">
+            <span className="absolute top-3 right-3 text-[10px] px-2 py-1 rounded-full bg-red-600/90 text-white">
               Out of Stock
             </span>
           )}
         </div>
 
-        {/* Content */}
+        {/* CONTENT */}
         <div className="p-3 space-y-1">
           <h3 className="text-sm font-semibold truncate">
             {game.gameName}
@@ -156,7 +158,6 @@ const getDisplayName = (name: string) => {
           </p>
         </div>
 
-        {/* Hover Glow */}
         {!disabled && (
           <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition pointer-events-none ring-1 ring-[var(--accent)]/30 rounded-2xl" />
         )}
@@ -166,40 +167,67 @@ const getDisplayName = (name: string) => {
 
   return (
     <section className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
-      {/* ================= STICKY FILTER BAR ================= */}
+      {/* ================= FILTER BAR ================= */}
       <div className="sticky top-[64px] z-40 bg-[var(--background)]/80 backdrop-blur border-b border-[var(--border)]">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex justify-end gap-3">
-          {activeFilterCount > 0 && (
-            <button
-              onClick={() => {
-                setSort("az");
-                setHideOOS(false);
-              }}
-              className="flex items-center gap-1 px-3 py-2 rounded-xl border bg-[var(--card)] text-sm hover:border-red-500 hover:text-red-500"
-            >
-              <FiX />
-              Clear
-            </button>
-          )}
+<div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
+          
+          {/* SEARCH */}
+    <div className="relative flex-1 min-w-0">
+  <input
+    type="text"
+    value={searchQuery}
+    onChange={(e) => setSearchQuery(e.target.value)}
+    placeholder="Search games..."
+    className="w-full rounded-xl border bg-[var(--card)] px-4 py-2 text-sm
+               outline-none transition focus:border-[var(--accent)]
+               placeholder:text-[var(--muted)]"
+  />
 
-          <button
-            onClick={() => setShowFilter(true)}
-            className="relative flex items-center gap-2 px-4 py-2 rounded-xl border bg-[var(--card)] hover:border-[var(--accent)]"
-          >
-            <FiFilter />
-            Filter
+  {searchQuery && (
+    <button
+      onClick={() => setSearchQuery("")}
+      className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted)] hover:text-red-500"
+    >
+      <FiX />
+    </button>
+  )}
+</div>
+
+
+          {/* ACTIONS */}
+          <div className="flex items-center gap-3">
             {activeFilterCount > 0 && (
-              <span className="absolute -top-2 -right-2 min-w-[18px] h-[18px] flex items-center justify-center text-[10px] rounded-full bg-[var(--accent)] text-black font-bold">
-                {activeFilterCount}
-              </span>
+              <button
+                onClick={() => {
+                  setSort("az");
+                  setHideOOS(false);
+                  setSearchQuery("");
+                }}
+                className="flex items-center gap-1 px-3 py-2 rounded-xl border bg-[var(--card)] text-sm hover:border-red-500 hover:text-red-500"
+              >
+                <FiX />
+                Clear
+              </button>
             )}
-          </button>
+
+            <button
+              onClick={() => setShowFilter(true)}
+              className="relative flex items-center gap-2 px-4 py-2 rounded-xl border bg-[var(--card)] hover:border-[var(--accent)]"
+            >
+              <FiFilter />
+              Filter
+              {activeFilterCount > 0 && (
+                <span className="absolute -top-2 -right-2 min-w-[18px] h-[18px] flex items-center justify-center text-[10px] rounded-full bg-[var(--accent)] text-black font-bold">
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
       {/* ================= CONTENT ================= */}
       <div className="px-4 py-10 space-y-14">
-        {/* CATEGORY SECTIONS */}
         {category.map((cat: any, i: number) => {
           const merged = injectSpecialGame(cat);
           const filtered = processGames(merged);
@@ -207,9 +235,9 @@ const getDisplayName = (name: string) => {
 
           return (
             <div key={i} className="max-w-7xl mx-auto">
-              <h2 className="text-xl font-bold mb-4 px-1 flex items-center gap-2">
+              <h2 className="text-xl font-bold mb-4 px-1">
                 {cat.categoryTitle}
-                <span className="text-xs text-[var(--muted)] font-medium">
+                <span className="ml-2 text-xs text-[var(--muted)]">
                   ({filtered.length})
                 </span>
               </h2>
@@ -230,11 +258,9 @@ const getDisplayName = (name: string) => {
           </h2>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
-            {processGames(games).map(
-              (game: any, i: number) => (
-                <GameCard key={i} game={game} />
-              )
-            )}
+            {processGames(games).map((game: any, i: number) => (
+              <GameCard key={i} game={game} />
+            ))}
           </div>
         </div>
       </div>

@@ -306,3 +306,14 @@ a:hover {
   animation: fallDown 1s ease-in forwards;
   cursor: default;
 }
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
