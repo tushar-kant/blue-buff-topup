@@ -60,14 +60,13 @@ export default function ReviewAndPaymentStep({
         itemSlug,
         itemName,
         playerId: reviewData.playerId, // ✅ Character ID
-        zoneId: "",                     // ✅ BGMI has no zone
         paymentMethod,
         price: totalPrice,
         email: userEmail || null,
         phone: storedPhone,
         userId: userId || null,
         currency: "INR",
-        zoneId: "N/A", // BGMI has no zone
+        zoneId: "N/A"
       };
 
       const res = await fetch("/api/order/create-gateway-order", {
