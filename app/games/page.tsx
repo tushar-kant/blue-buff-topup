@@ -10,6 +10,8 @@ import GamesFilterModal from "@/components/Games/GamesFilterModal";
 export default function GamesPage() {
   const [category, setCategory] = useState<any[]>([]);
   const [games, setGames] = useState<any[]>([]);
+    const [otts, setOtts] = useState<any>(null);
+
 
   /* ================= FILTER STATE ================= */
   const [showFilter, setShowFilter] = useState(false);
@@ -36,6 +38,10 @@ export default function GamesPage() {
     fetch("/api/games")
       .then((res) => res.json())
       .then((data) => {
+              const fetchedOtts = data?.data?.otts || null;
+                    setOtts(fetchedOtts);
+                          setOtts(data?.data?.otts || null);
+
         setCategory(data?.data?.category || []);
         setGames(
           (data?.data?.games || []).map((g: any) =>
@@ -267,6 +273,50 @@ export default function GamesPage() {
         </div>
       </div>
 
+{otts?.items?.length > 0 && (
+  <div className="max-w-7xl mx-auto mb-14">
+    <div className="flex items-center gap-3 mb-6">
+      <h2 className="text-2xl font-bold text-[var(--foreground)]">
+        {otts.title}
+      </h2>
+      <div className="flex-1 h-px bg-gradient-to-r from-[var(--border)] to-transparent" />
+      <span className="text-sm text-[var(--muted)]">
+        {otts.total} services
+      </span>
+    </div>
+
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+      {otts.items.map((ott:any) => (
+        <Link
+          key={ott.slug}
+          href={`/games/ott/${ott.slug}`}
+          className="group rounded-2xl bg-[var(--card)]
+                     border border-[var(--border)]
+                     hover:border-[var(--accent)]
+                     transition-all duration-300
+                     p-5 flex flex-col items-center text-center"
+        >
+          <div className="relative w-20 h-20 mb-4">
+            <Image
+              src={ott.image}
+              alt={ott.name}
+              fill
+              className="object-contain"
+            />
+          </div>
+
+          <h3 className="font-semibold text-[var(--foreground)]">
+            {ott.name}
+          </h3>
+
+          <span className="mt-1 text-xs text-[var(--muted)]">
+            {ott.category}
+          </span>
+        </Link>
+      ))}
+    </div>
+  </div>
+)}
       {/* ================= FILTER MODAL ================= */}
       {showFilter && (
         <GamesFilterModal
